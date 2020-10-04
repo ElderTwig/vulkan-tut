@@ -9,7 +9,8 @@ target_sources(vulkan-app_lib
 target_include_directories(vulkan-app_lib
     PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-target_link_libraries(vulkan-app_lib)
+target_link_libraries(vulkan-app_lib
+    PRIVATE Vulkan::Vulkan)
 
 set_target_properties(vulkan-app_lib
     PROPERTIES
@@ -37,4 +38,4 @@ else()
         PRIVATE -Wextra)
 endif()
 
-add_library(vulkan-app::lib ALIAS ${APP_NAME}_lib)
+add_library(vulkan-app::lib ALIAS vulkan-app_lib)
