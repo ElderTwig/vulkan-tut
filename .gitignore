@@ -1,0 +1,32 @@
+#Build artefacts
+build*/
+
+#CMake
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+
+#Make
+Makefile
+
+#Ninja
+.ninja*
+*.ninja
+
+#Config files and folders
+compile_commands.json
+.clangd/
+
+#Custom build/run files
+*.sh
+
+#Local diagnostic files
+*.cap
+
+#IDE artifacts
+/.vs
+/CMakeSettings.json
+.vscode/
+
+#Coverage files
+coverage/
