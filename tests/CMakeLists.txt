@@ -10,7 +10,7 @@ set_target_properties(tests
 
 target_link_libraries(tests
     PRIVATE Catch2::Catch2
-    PRIVATE ${APP_NAME}::lib)
+    PRIVATE vulkan-app::lib)
 
 string(CONCAT GCOVR_CALL
     "gcovr -r ${PROJECT_SOURCE_DIR}/lib "

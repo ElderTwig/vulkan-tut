@@ -24,7 +24,7 @@ option(BUILD_SHARED_LIBS OFF)
 
 set(APP_NAME "App")
 
-message("App name is: ${APP_NAME}")
+message("App name is: vulkan-app")
 
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
