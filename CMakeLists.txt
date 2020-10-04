@@ -24,7 +24,7 @@ option(BUILD_SHARED_LIBS OFF)
 
 set(APP_NAME "App")
 
-message("App name is: vulkan-app")
+message("App name is: vkTut")
 
 #---------------------------Compilation database generation--------------------
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -59,13 +59,35 @@ if(BUILD_TESTING)
     endif()
 endif()
 
+#---------------------------Threading library----------------------------------
+find_package(Threads REQUIRED)
+
 #---------------------------Vulkan setup---------------------------------------
 find_package(Vulkan REQUIRED)
 
-#---------------------------vulkan-app::lib------------------------------------
+
+#---------------------------GLFW-----------------------------------------------
+find_package(GLFW REQUIRED)
+
+if(NOT TARGET glfw::glfw)
+    add_library(glfw::glfw INTERFACE IMPORTED)
+    target_link_libraries(glfw::glfw
+        INTERFACE glfw)
+endif()
+
+#---------------------------GLM------------------------------------------------
+find_package(glm CONFIG REQUIRED)
+
+if(NOT TARGET glm::glm)
+    add_library(glm::glm INTERFACE IMPORTED)
+    target_link_libraries(glm::glm
+        INTERFACE glm)
+endif()
+
+#---------------------------vkTut::lib-----------------------------------------
 add_subdirectory(lib)
 
-#---------------------------vulkan-app-----------------------------------------
+#---------------------------vkTut----------------------------------------------
 add_subdirectory(app)
 
 #---------------------------tests----------------------------------------------
