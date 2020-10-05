@@ -1,7 +1,7 @@
 file(GLOB SRC
     "*.cpp")
 
-add_library(vkTut_lib STATIC)
+add_library(vkTut_lib SHARED)
     
 target_sources(vkTut_lib 
     PUBLIC ${SRC})
@@ -10,7 +10,7 @@ target_include_directories(vkTut_lib
     PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_link_libraries(vkTut_lib
-    PRIVATE 
+    PUBLIC 
         Vulkan::Vulkan
         glfw::glfw
         glm::glm)
