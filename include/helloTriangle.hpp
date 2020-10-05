@@ -38,67 +38,19 @@ private:
     vk::Instance m_instance;
 
     static auto
-    initWindow() noexcept -> UniqueGLFWwindow
-    {
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-
-        return UniqueGLFWwindow{
-                glfwCreateWindow(width, height, "vk", nullptr, nullptr)};
-    }
+    initWindow() noexcept -> UniqueGLFWwindow;
 
     static auto
-    createInstace() -> vk::Instance
-    {
-        auto extensionCount = uint32_t{};
-
-        auto const** glfwExtentions =
-                glfwGetRequiredInstanceExtensions(&extensionCount);
-
-        auto constexpr appInfo = vk::ApplicationInfo(
-                "HelloTriangle",
-                1,
-                "vkTut",
-                1,
-                VK_API_VERSION_1_2);
-
-        auto const instanceCreateInfo = vk::InstanceCreateInfo(
-                {},
-                &appInfo,
-                {},
-                {},
-                extensionCount,
-                glfwExtentions);
-
-        auto instance = vk::Instance{};
-        auto const result =
-                vk::createInstance(&instanceCreateInfo, nullptr, &instance);
-
-        if(result != vk::Result::eSuccess) {
-            throw std::runtime_error("Vk instance could not be created");
-        }
-
-        return instance;
-    }
+    createInstace() -> vk::Instance;
 
     auto
-    initVulkan() -> void
-    {}
+    initVulkan() -> void;
 
     auto
-    mainLoop() -> void
-    {
-        while(glfwWindowShouldClose(m_window.get()) == 0) {
-            glfwPollEvents();
-        }
-    }
+    mainLoop() -> void;
 
     static auto
-    cleanup() -> void
-    {
-        glfwTerminate();
-    }
+    cleanup() -> void;
 };
 
 #endif    // VK_TUT_HELLO_TRIANGLE_HPP
