@@ -13,7 +13,8 @@ target_link_libraries(vkTut_lib
     PUBLIC 
         Vulkan::Vulkan
         glfw::glfw
-        glm::glm)
+        glm::glm
+        Microsoft.GSL::GSL)
 
 set_target_properties(vkTut_lib
     PROPERTIES

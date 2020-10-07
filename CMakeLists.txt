@@ -65,6 +65,8 @@ find_package(Threads REQUIRED)
 #---------------------------Vulkan setup---------------------------------------
 find_package(Vulkan REQUIRED)
 
+#---------------------------GSL------------------------------------------------
+add_subdirectory(extern/GSL)
 
 #---------------------------GLFW-----------------------------------------------
 find_package(GLFW REQUIRED)
