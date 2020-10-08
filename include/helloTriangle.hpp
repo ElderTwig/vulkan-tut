@@ -1,8 +1,11 @@
 #ifndef VK_TUT_HELLO_TRIANGLE_HPP
 #define VK_TUT_HELLO_TRIANGLE_HPP
 
+#include "glfwUtility.hpp"
+
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 
 #include <iostream>
 #include <memory>
@@ -14,40 +17,25 @@ public:
     static int constexpr width  = 800;
     static int constexpr height = 600;
 
-    HelloTriangle() : m_window{initWindow()}, m_instance{createInstace()}
-    {}
+    HelloTriangle();
 
     auto
     run() -> void
     {
-        initVulkan();
-        mainLoop();
+        main_loop();
         cleanup();
     }
 
 private:
-    struct WindowDeleter {
-        auto
-        operator()(GLFWwindow* window) const noexcept -> void
-        {
-            glfwDestroyWindow(window);
-        }
-    };
-    using UniqueGLFWwindow = std::unique_ptr<GLFWwindow, WindowDeleter>;
-    UniqueGLFWwindow m_window;
-    vk::Instance m_instance;
+    glfwUtils::UniqueWindow m_window;
+
+    vk::UniqueInstance m_instance;
 
     static auto
-    initWindow() noexcept -> UniqueGLFWwindow;
-
-    static auto
-    createInstace() -> vk::Instance;
+    create_instace() -> vk::UniqueInstance;
 
     auto
-    initVulkan() -> void;
-
-    auto
-    mainLoop() -> void;
+    main_loop() -> void;
 
     static auto
     cleanup() -> void;

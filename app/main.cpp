@@ -1,8 +1,5 @@
 #include "helloTriangle.hpp"
 
-#include <cstdlib>
-#include <iostream>
-
 auto
 main() -> int
 {
