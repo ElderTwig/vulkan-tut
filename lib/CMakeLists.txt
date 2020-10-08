@@ -7,10 +7,11 @@ target_sources(vkTut_lib
     PUBLIC ${SRC})
 
 target_include_directories(vkTut_lib
-    PUBLIC ${PROJECT_SOURCE_DIR}/include)
+    PUBLIC ../include)
 
 target_link_libraries(vkTut_lib
     PUBLIC 
+        ${CMAKE_DL_LIBS}
         Vulkan::Vulkan
         glfw::glfw
         glm::glm

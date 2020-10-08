@@ -2,10 +2,10 @@
 #define VK_TUT_HELLO_TRIANGLE_HPP
 
 #include "glfwUtility.hpp"
+#include "vulkanUtility.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
-#include <vulkan/vulkan.h>
 
 #include <iostream>
 #include <memory>
@@ -28,11 +28,9 @@ public:
 
 private:
     glfwUtils::UniqueWindow m_window;
-
     vk::UniqueInstance m_instance;
-
-    static auto
-    create_instace() -> vk::UniqueInstance;
+    vulkanUtils::LoaderDispatcherPair m_loaderDispatcherPair;
+    vulkanUtils::UniqueDebugUtilsMessengerEXT m_debugMessenger;
 
     auto
     main_loop() -> void;
