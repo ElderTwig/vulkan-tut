@@ -31,6 +31,7 @@ private:
     vk::UniqueInstance m_instance;
     vulkanUtils::LoaderDispatcherPair m_loaderDispatcherPair;
     vulkanUtils::UniqueDebugUtilsMessengerEXT m_debugMessenger;
+    vk::PhysicalDevice m_device;
 
     auto
     main_loop() -> void;

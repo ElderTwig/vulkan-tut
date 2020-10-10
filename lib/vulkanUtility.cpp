@@ -61,7 +61,7 @@ layers_supported(std::vector<char const*> const& layerNames) noexcept -> bool
     return allSupported;
 }
 
-auto
+[[nodiscard]] auto
 create_instance() -> vk::UniqueInstance
 {
     auto const requiredExtensions = [] {
@@ -112,6 +112,20 @@ create_loader_dispatcher_pair(vk::UniqueInstance& instance)
     return {std::move(loader), std::move(dispatcher)};
 }
 
+VKAPI_ATTR VkBool32 VKAPI_CALL
+debugCallback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT,
+        VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData,
+        void* /*pUserData*/)
+{
+    if(messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+        std::cerr << pCallbackData->pMessage << '\n';
+    }
+
+    return (VkBool32) false;
+}
+
 [[nodiscard]] auto
 create_debug_messenger(
         vk::UniqueInstance& instance,
@@ -140,19 +154,39 @@ create_debug_messenger(
             dispatcher);
 }
 
-VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT /*messageSeverity*/,
-        VkDebugUtilsMessageTypeFlagsEXT,
-        VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData,
-        void* /*pUserData*/)
+[[nodiscard]] auto
+bestDevice(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
 {
-    // if(messageSeverity >= vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
-    // {
-    std::cerr << pCallbackData->pMessage;
-    //}
+    auto constexpr unsuitable = [](vk::PhysicalDevice const& device) {
+        auto const features = device.getFeatures();
+        return features.geometryShader == 0u;
+    };
 
-    return (vk::Bool32) false;
+    auto devices = instance->enumeratePhysicalDevices();
+    devices.erase(
+            std::remove_if(std::begin(devices), std::end(devices), unsuitable),
+            std::end(devices));
+
+    if(devices.empty()) {
+        throw std::runtime_error("No suitable devices detected!");
+    }
+
+    auto constexpr score = [](vk::PhysicalDevice const& device) {
+        return 1000
+               * static_cast<int>(
+                       device.getProperties().deviceType
+                       == vk::PhysicalDeviceType::eDiscreteGpu);
+    };
+
+    std::nth_element(
+            std::begin(devices),
+            std::begin(devices),
+            std::end(devices),
+            [score](auto&& lhs, auto&& rhs) {
+                return score(lhs) > score(rhs);
+            });
+
+    return devices[0];
 }
 
 }    // namespace vulkanUtils

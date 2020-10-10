@@ -38,12 +38,8 @@ create_debug_messenger(
         vk::DispatchLoaderDynamic const& dispatcher)
         -> UniqueDebugUtilsMessengerEXT;
 
-VKAPI_ATTR VkBool32 VKAPI_CALL
-debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT,
-        VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData,
-        void* /*pUserData*/);
+[[nodiscard]] auto
+bestDevice(vk::UniqueInstance const& instance) -> vk::PhysicalDevice;
 
 }    // namespace vulkanUtils
 

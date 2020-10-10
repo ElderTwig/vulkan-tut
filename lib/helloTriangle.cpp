@@ -17,8 +17,11 @@ HelloTriangle::HelloTriangle() :
                     vulkanUtils::create_loader_dispatcher_pair(m_instance)},
             m_debugMessenger{vulkanUtils::create_debug_messenger(
                     m_instance,
-                    m_loaderDispatcherPair.dispatcher)}
-{}
+                    m_loaderDispatcherPair.dispatcher)},
+            m_device{vulkanUtils::bestDevice(m_instance)}
+{
+    std::cerr << m_device.getProperties().deviceName.data() << '\n';
+}
 
 auto
 HelloTriangle::main_loop() -> void
