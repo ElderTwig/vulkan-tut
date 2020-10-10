@@ -18,9 +18,11 @@ HelloTriangle::HelloTriangle() :
             m_debugMessenger{vulkanUtils::create_debug_messenger(
                     m_instance,
                     m_loaderDispatcherPair.dispatcher)},
-            m_device{vulkanUtils::bestDevice(m_instance)}
+            m_physicalDevice{vulkanUtils::best_device(m_instance)},
+            m_logicalDevice{
+                    vulkanUtils::create_logical_device(m_physicalDevice)}
 {
-    std::cerr << m_device.getProperties().deviceName.data() << '\n';
+    std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }
 
 auto

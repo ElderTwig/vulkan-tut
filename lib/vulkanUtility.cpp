@@ -155,7 +155,7 @@ create_debug_messenger(
 }
 
 [[nodiscard]] auto
-bestDevice(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
+best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
 {
     auto constexpr unsuitable = [](vk::PhysicalDevice const& device) {
         auto const features = device.getFeatures();
@@ -187,6 +187,47 @@ bestDevice(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
             });
 
     return devices[0];
+}
+
+struct QueueAndPos {
+    vk::QueueFamilyProperties properties;
+    long position;
+};
+
+[[nodiscard]] auto
+get_graphics_queue(vk::PhysicalDevice const& device) -> QueueAndPos
+{
+    auto const queueProperties = device.getQueueFamilyProperties();
+
+    auto constexpr isGraphicsQueue = [](vk::QueueFamilyProperties const& prop) {
+        return (prop.queueFlags & vk::QueueFlagBits::eGraphics)
+               == vk::QueueFlagBits::eGraphics;
+    };
+
+    auto const queueIterator = std::find_if(
+            std::cbegin(queueProperties),
+            std::cend(queueProperties),
+            isGraphicsQueue);
+
+    if(queueIterator == std::cend(queueProperties)) {
+        throw std::runtime_error{"Physical device has no graphics queue!"};
+    }
+
+    return {*queueIterator, queueIterator - std::cbegin(queueProperties)};
+}
+
+[[nodiscard]] auto
+create_logical_device(vk::PhysicalDevice const& physicalDevice)
+        -> vk::UniqueDevice
+{
+    auto const chosenQueue = get_graphics_queue(physicalDevice);
+
+    auto const queueCreationInfo [[maybe_unused]] = vk::DeviceQueueCreateInfo(
+            {},
+            chosenQueue.position,
+            chosenQueue.properties.queueCount);
+
+    return {};
 }
 
 }    // namespace vulkanUtils

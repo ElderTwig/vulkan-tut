@@ -39,7 +39,11 @@ create_debug_messenger(
         -> UniqueDebugUtilsMessengerEXT;
 
 [[nodiscard]] auto
-bestDevice(vk::UniqueInstance const& instance) -> vk::PhysicalDevice;
+best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice;
+
+[[nodiscard]] auto
+create_logical_device(vk::PhysicalDevice const& physicalDevice)
+        -> vk::UniqueDevice;
 
 }    // namespace vulkanUtils
 
