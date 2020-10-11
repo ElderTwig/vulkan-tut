@@ -38,12 +38,22 @@ create_debug_messenger(
         vk::DispatchLoaderDynamic const& dispatcher)
         -> UniqueDebugUtilsMessengerEXT;
 
-[[nodiscard]] auto
-best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice;
+struct QueueFamilyAndPos {
+    vk::QueueFamilyProperties properties;
+    long position;
+};
 
 [[nodiscard]] auto
-create_logical_device(vk::PhysicalDevice const& physicalDevice)
-        -> vk::UniqueDevice;
+get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos;
+
+[[nodiscard]] auto
+create_logical_device(
+        vk::PhysicalDevice const& physicalDevice,
+        QueueFamilyAndPos const& queue,
+        std::vector<float> const& queuePriorities) -> vk::UniqueDevice;
+
+[[nodiscard]] auto
+best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice;
 
 }    // namespace vulkanUtils
 

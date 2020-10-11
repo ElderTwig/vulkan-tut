@@ -19,8 +19,15 @@ HelloTriangle::HelloTriangle() :
                     m_instance,
                     m_loaderDispatcherPair.dispatcher)},
             m_physicalDevice{vulkanUtils::best_device(m_instance)},
-            m_logicalDevice{
-                    vulkanUtils::create_logical_device(m_physicalDevice)}
+            m_graphicsQueues{
+                    vulkanUtils::get_graphics_queues(m_physicalDevice)},
+            m_queuePriorities(m_graphicsQueues.properties.queueCount),
+            m_logicalDevice{vulkanUtils::create_logical_device(
+                    m_physicalDevice,
+                    m_graphicsQueues,
+                    m_queuePriorities)},
+            m_deviceQueue{
+                    m_logicalDevice->getQueue(m_graphicsQueues.position, 0)}
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }

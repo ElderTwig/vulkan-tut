@@ -32,7 +32,10 @@ private:
     vulkanUtils::LoaderDispatcherPair m_loaderDispatcherPair;
     vulkanUtils::UniqueDebugUtilsMessengerEXT m_debugMessenger;
     vk::PhysicalDevice m_physicalDevice;
+    vulkanUtils::QueueFamilyAndPos m_graphicsQueues;
+    std::vector<float> const m_queuePriorities;
     vk::UniqueDevice m_logicalDevice;
+    vk::Queue m_deviceQueue;
 
     auto
     main_loop() -> void;

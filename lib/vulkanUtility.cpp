@@ -189,22 +189,16 @@ best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
     return devices[0];
 }
 
-struct QueueAndPos {
-    vk::QueueFamilyProperties properties;
-    long position;
-};
-
 [[nodiscard]] auto
-get_graphics_queue(vk::PhysicalDevice const& device) -> QueueAndPos
+get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos
 {
-    auto const queueProperties = device.getQueueFamilyProperties();
-
     auto constexpr isGraphicsQueue = [](vk::QueueFamilyProperties const& prop) {
         return (prop.queueFlags & vk::QueueFlagBits::eGraphics)
                == vk::QueueFlagBits::eGraphics;
     };
 
-    auto const queueIterator = std::find_if(
+    auto const queueProperties = device.getQueueFamilyProperties();
+    auto const queueIterator   = std::find_if(
             std::cbegin(queueProperties),
             std::cend(queueProperties),
             isGraphicsQueue);
@@ -217,17 +211,30 @@ get_graphics_queue(vk::PhysicalDevice const& device) -> QueueAndPos
 }
 
 [[nodiscard]] auto
-create_logical_device(vk::PhysicalDevice const& physicalDevice)
-        -> vk::UniqueDevice
+create_logical_device(
+        vk::PhysicalDevice const& physicalDevice,
+        QueueFamilyAndPos const& queue,
+        std::vector<float> const& queuePriorities) -> vk::UniqueDevice
 {
-    auto const chosenQueue = get_graphics_queue(physicalDevice);
-
-    auto const queueCreationInfo [[maybe_unused]] = vk::DeviceQueueCreateInfo(
+    auto const queueCreationInfo = vk::DeviceQueueCreateInfo(
             {},
-            chosenQueue.position,
-            chosenQueue.properties.queueCount);
+            queue.position,
+            queue.properties.queueCount,
+            queuePriorities.data());
 
-    return {};
+    auto const deviceFeatures = physicalDevice.getFeatures();
+
+    auto const deviceCreationInfo = vk::DeviceCreateInfo(
+            {},
+            queueCreationInfo.queueCount,
+            &queueCreationInfo,
+            {},
+            {},
+            {},
+            {},
+            &deviceFeatures);
+
+    return physicalDevice.createDeviceUnique(deviceCreationInfo);
 }
 
 }    // namespace vulkanUtils
