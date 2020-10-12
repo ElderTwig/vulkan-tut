@@ -1,5 +1,6 @@
 #include "vulkanUtility.hpp"
 
+#include <numeric>
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
@@ -156,11 +157,41 @@ create_debug_messenger(
 }
 
 [[nodiscard]] auto
-best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
+best_device(
+        vk::UniqueInstance const& instance,
+        std::vector<char const*> requiredExtensions) -> vk::PhysicalDevice
 {
-    auto constexpr unsuitable = [](vk::PhysicalDevice const& device) {
-        auto const features = device.getFeatures();
-        return features.geometryShader == 0u;
+    auto constexpr getExtensionName = [](vk::ExtensionProperties const& prop) {
+        return prop.extensionName;
+    };
+    auto constexpr getSupportedExtensions =
+            [getExtensionName](vk::PhysicalDevice const& device) {
+                auto const props = device.enumerateDeviceExtensionProperties();
+                auto names       = std::vector<char const*>(props.size());
+                std::transform(
+                        std::cbegin(props),
+                        std::cend(props),
+                        std::begin(names),
+                        getExtensionName);
+
+                std::sort(std::begin(names), std::end(names));
+                return names;
+            };
+
+    std::sort(std::begin(requiredExtensions), std::end(requiredExtensions));
+
+    auto const unsuitable = [&](vk::PhysicalDevice const& device) {
+        auto const supportedExtensions         = getSupportedExtensions(device);
+        auto const requiredExtensionsSupported = std::includes(
+                std::begin(supportedExtensions),
+                std::cend(supportedExtensions),
+                std::cbegin(requiredExtensions),
+                std::cend(requiredExtensions));
+
+        auto const hasGeometryShaderSuport =
+                device.getFeatures().geometryShader == 0u;
+
+        return hasGeometryShaderSuport && requiredExtensionsSupported;
     };
 
     auto devices = instance->enumeratePhysicalDevices();
@@ -251,7 +282,8 @@ get_present_queues(
 create_logical_device(
         vk::PhysicalDevice const& physicalDevice,
         QueueFamilyAndPos const& queue,
-        std::vector<float> const& queuePriorities) -> vk::UniqueDevice
+        std::vector<float> const& queuePriorities,
+        std::vector<char const*> const& extensions) -> vk::UniqueDevice
 {
     auto const queueCreationInfo = vk::DeviceQueueCreateInfo(
             {},
@@ -267,8 +299,8 @@ create_logical_device(
             &queueCreationInfo,
             {},
             {},
-            {},
-            {},
+            extensions.size(),
+            extensions.data(),
             &deviceFeatures);
 
     return physicalDevice.createDeviceUnique(deviceCreationInfo);

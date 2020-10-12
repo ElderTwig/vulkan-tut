@@ -32,10 +32,15 @@ private:
     vulkanUtils::LoaderDispatcherPair m_loaderDispatcherPair;
     vulkanUtils::UniqueDebugUtilsMessengerEXT m_debugMessenger;
     vk::UniqueSurfaceKHR m_surface;
+
+    std::vector<char const*> const m_deviceExtensions{
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     vk::PhysicalDevice m_physicalDevice;
+
     vulkanUtils::QueueFamilyAndPos m_graphicsQueues;
     vulkanUtils::QueueFamilyAndPos m_presentationQueues;
     std::vector<float> const m_queuePriorities;
+
     vk::UniqueDevice m_logicalDevice;
     vk::Queue m_deviceQueue;
 

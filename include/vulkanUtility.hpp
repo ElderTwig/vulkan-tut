@@ -61,10 +61,13 @@ get_present_queues(
 create_logical_device(
         vk::PhysicalDevice const& physicalDevice,
         QueueFamilyAndPos const& queue,
-        std::vector<float> const& queuePriorities) -> vk::UniqueDevice;
+        std::vector<float> const& queuePriorities,
+        std::vector<char const*> const& extensions) -> vk::UniqueDevice;
 
 [[nodiscard]] auto
-best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice;
+best_device(
+        vk::UniqueInstance const& instance,
+        std::vector<char const*> requiredExtensions) -> vk::PhysicalDevice;
 
 }    // namespace vulkanUtils
 
