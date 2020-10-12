@@ -18,9 +18,14 @@ HelloTriangle::HelloTriangle() :
             m_debugMessenger{vulkanUtils::create_debug_messenger(
                     m_instance,
                     m_loaderDispatcherPair.dispatcher)},
+            m_surface{glfwUtils::create_window_surface(m_instance, m_window)},
             m_physicalDevice{vulkanUtils::best_device(m_instance)},
             m_graphicsQueues{
                     vulkanUtils::get_graphics_queues(m_physicalDevice)},
+            m_presentationQueues{vulkanUtils::get_present_queues(
+                    m_physicalDevice,
+                    m_graphicsQueues,
+                    m_surface)},
             m_queuePriorities(m_graphicsQueues.properties.queueCount),
             m_logicalDevice{vulkanUtils::create_logical_device(
                     m_physicalDevice,

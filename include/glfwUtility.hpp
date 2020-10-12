@@ -20,12 +20,17 @@ struct WindowDeleter {
 
 using UniqueWindow = std::unique_ptr<GLFWwindow, WindowDeleter>;
 
-auto
+[[nodiscard]] auto
 create_window(int width, int height, bool resizeable, std::string const& title)
         -> UniqueWindow;
 
-auto
+[[nodiscard]] auto
 required_vk_extensions() -> std::vector<char const*>;
+
+[[nodiscard]] auto
+create_window_surface(
+        vk::UniqueInstance const& instance,
+        UniqueWindow const& window) -> vk::UniqueSurfaceKHR;
 }    // namespace glfwUtils
 
 #endif    // VK_TUT_GLFW_UTILITY

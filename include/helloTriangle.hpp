@@ -31,8 +31,10 @@ private:
     vk::UniqueInstance m_instance;
     vulkanUtils::LoaderDispatcherPair m_loaderDispatcherPair;
     vulkanUtils::UniqueDebugUtilsMessengerEXT m_debugMessenger;
+    vk::UniqueSurfaceKHR m_surface;
     vk::PhysicalDevice m_physicalDevice;
     vulkanUtils::QueueFamilyAndPos m_graphicsQueues;
+    vulkanUtils::QueueFamilyAndPos m_presentationQueues;
     std::vector<float> const m_queuePriorities;
     vk::UniqueDevice m_logicalDevice;
     vk::Queue m_deviceQueue;

@@ -7,6 +7,7 @@
 #include <cstring>
 #include <vector>
 #include <iostream>
+#include <string>
 
 namespace vulkanUtils {
 
@@ -190,7 +191,9 @@ best_device(vk::UniqueInstance const& instance) -> vk::PhysicalDevice
 }
 
 [[nodiscard]] auto
-get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos
+get_next_graphics_queue_family(
+        vk::PhysicalDevice const& device,
+        long startIndex) -> QueueFamilyAndPos
 {
     auto constexpr isGraphicsQueue = [](vk::QueueFamilyProperties const& prop) {
         return (prop.queueFlags & vk::QueueFlagBits::eGraphics)
@@ -199,15 +202,49 @@ get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos
 
     auto const queueProperties = device.getQueueFamilyProperties();
     auto const queueIterator   = std::find_if(
-            std::cbegin(queueProperties),
+            std::cbegin(queueProperties) + startIndex,
             std::cend(queueProperties),
             isGraphicsQueue);
 
     if(queueIterator == std::cend(queueProperties)) {
-        throw std::runtime_error{"Physical device has no graphics queue!"};
+        throw std::runtime_error{"Physical device has no next graphics queue!"};
     }
 
     return {*queueIterator, queueIterator - std::cbegin(queueProperties)};
+}
+
+[[nodiscard]] auto
+get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos
+{
+    return get_next_graphics_queue_family(device, 0);
+}
+
+[[nodiscard]] auto
+get_present_queues(
+        vk::PhysicalDevice const& device,
+        QueueFamilyAndPos firstGraphicsQueueFamily,
+        vk::UniqueSurfaceKHR const& surface) -> QueueFamilyAndPos
+{
+    auto presentationFamily = firstGraphicsQueueFamily;
+
+    try {
+        while(device.getSurfaceSupportKHR(
+                      presentationFamily.position,
+                      surface.get())
+              == 0u) {
+            presentationFamily = get_next_graphics_queue_family(
+                    device,
+                    presentationFamily.position + 1);
+        }
+    }
+    catch(std::exception const& e) {
+        using namespace std::string_literals;
+        throw std::runtime_error(
+                "Could not find a presentationQueueFamily because:\n"s
+                + e.what());
+    }
+
+    return presentationFamily;
 }
 
 [[nodiscard]] auto

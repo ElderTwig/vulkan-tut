@@ -40,4 +40,18 @@ required_vk_extensions() -> std::vector<char const*>
             std::cend(extensionsSpan)};
 }
 
+[[nodiscard]] auto
+create_window_surface(
+        vk::UniqueInstance const& instance,
+        UniqueWindow const& window) -> vk::UniqueSurfaceKHR
+{
+    auto* surface = VkSurfaceKHR{};
+    if(glfwCreateWindowSurface(*instance, window.get(), nullptr, &surface)
+       != VK_SUCCESS) {
+        throw std::runtime_error("Surface could not be created!");
+    }
+
+    return vk::UniqueSurfaceKHR{surface, instance.get()};
+}
+
 }    // namespace glfwUtils

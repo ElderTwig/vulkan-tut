@@ -43,8 +43,19 @@ struct QueueFamilyAndPos {
     long position;
 };
 
+struct QueueFamilies {
+    QueueFamilyAndPos graphics;
+    QueueFamilyAndPos present;
+};
+
 [[nodiscard]] auto
 get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos;
+
+[[nodiscard]] auto
+get_present_queues(
+        vk::PhysicalDevice const& device,
+        QueueFamilyAndPos firstGraphicsQueueFamily,
+        vk::UniqueSurfaceKHR const& surface) -> QueueFamilyAndPos;
 
 [[nodiscard]] auto
 create_logical_device(
