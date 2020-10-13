@@ -28,7 +28,11 @@ public:
 
 private:
     glfwUtils::UniqueWindow m_window;
+
+    std::vector<char const*> const m_validationLayers{
+            "VK_LAYER_KHRONOS_validation"};
     vk::UniqueInstance m_instance;
+
     vulkanUtils::LoaderDispatcherPair m_loaderDispatcherPair;
     vulkanUtils::UniqueDebugUtilsMessengerEXT m_debugMessenger;
     vk::UniqueSurfaceKHR m_surface;
@@ -40,9 +44,12 @@ private:
     vulkanUtils::QueueFamilyAndPos m_graphicsQueues;
     vulkanUtils::QueueFamilyAndPos m_presentationQueues;
     std::vector<float> const m_queuePriorities;
+    std::vector<uint32_t> m_queueIndicies;
 
     vk::UniqueDevice m_logicalDevice;
     vk::Queue m_deviceQueue;
+
+    vk::UniqueSwapchainKHR m_swapChain;
 
     auto
     main_loop() -> void;

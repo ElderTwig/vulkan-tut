@@ -18,7 +18,8 @@ extensions_supported(std::vector<char const*> const& extensionNames) noexcept
 layers_supported(std::vector<char const*> const& layerNames) noexcept -> bool;
 
 [[nodiscard]] auto
-create_instance() -> vk::UniqueInstance;
+create_instance(std::vector<char const*> const& requiredValidationLayers)
+        -> vk::UniqueInstance;
 
 struct LoaderDispatcherPair {
     vk::DynamicLoader loader;
@@ -62,12 +63,30 @@ create_logical_device(
         vk::PhysicalDevice const& physicalDevice,
         QueueFamilyAndPos const& queue,
         std::vector<float> const& queuePriorities,
+        std::vector<char const*> const& validationLayers,
         std::vector<char const*> const& extensions) -> vk::UniqueDevice;
 
 [[nodiscard]] auto
 best_device(
         vk::UniqueInstance const& instance,
         std::vector<char const*> requiredExtensions) -> vk::PhysicalDevice;
+
+auto constexpr defaultSurfaceFormat = vk::SurfaceFormatKHR{
+        vk::Format::eB8G8R8A8Srgb,
+        vk::ColorSpaceKHR::eSrgbNonlinear};
+
+auto constexpr defaultPresentationMode = vk::PresentModeKHR::eFifoRelaxed;
+
+[[nodiscard]] auto
+create_swap_chain(
+        vk::PhysicalDevice const& physicalDevice,
+        vk::UniqueSurfaceKHR const& surface,
+        vk::UniqueDevice const& logicalDevice,
+        vk::Extent2D requestedDimensions,
+        vk::SurfaceFormatKHR requestedFormat,
+        vk::PresentModeKHR requestedPresentMode,
+        std::vector<uint32_t> const& queueFamilyIndicies)
+        -> vk::UniqueSwapchainKHR;
 
 }    // namespace vulkanUtils
 

@@ -64,7 +64,8 @@ layers_supported(std::vector<char const*> const& layerNames) noexcept -> bool
 }
 
 [[nodiscard]] auto
-create_instance() -> vk::UniqueInstance
+create_instance(std::vector<char const*> const& requiredValidationLayers)
+        -> vk::UniqueInstance
 {
     auto const requiredExtensions = [] {
         auto extensions = glfwUtils::required_vk_extensions();
@@ -76,9 +77,7 @@ create_instance() -> vk::UniqueInstance
         throw std::runtime_error("Required extensions not supported!");
     }
 
-    auto const requiredLayers = std::vector{"VK_LAYER_KHRONOS_validation"};
-
-    if(!layers_supported(requiredLayers)) {
+    if(!layers_supported(requiredValidationLayers)) {
         throw std::runtime_error("Required layers not supported!");
     }
 
@@ -92,8 +91,8 @@ create_instance() -> vk::UniqueInstance
     auto const instanceCreateInfo = vk::InstanceCreateInfo(
             {},
             &appInfo,
-            requiredLayers.size(),
-            requiredLayers.data(),
+            requiredValidationLayers.size(),
+            requiredValidationLayers.data(),
             requiredExtensions.size(),
             requiredExtensions.data());
 
@@ -283,27 +282,191 @@ create_logical_device(
         vk::PhysicalDevice const& physicalDevice,
         QueueFamilyAndPos const& queue,
         std::vector<float> const& queuePriorities,
+        std::vector<char const*> const& validationLayers,
         std::vector<char const*> const& extensions) -> vk::UniqueDevice
 {
     auto const queueCreationInfo = vk::DeviceQueueCreateInfo(
             {},
             queue.position,
-            queue.properties.queueCount,
+            1,
             queuePriorities.data());
 
-    auto const deviceFeatures = physicalDevice.getFeatures();
+    static auto const deviceFeatures = physicalDevice.getFeatures();
 
     auto const deviceCreationInfo = vk::DeviceCreateInfo(
             {},
             queueCreationInfo.queueCount,
             &queueCreationInfo,
-            {},
-            {},
+            validationLayers.size(),
+            validationLayers.data(),
             extensions.size(),
             extensions.data(),
             &deviceFeatures);
 
     return physicalDevice.createDeviceUnique(deviceCreationInfo);
+}
+
+struct SwapChainDetails {
+    vk::SurfaceCapabilitiesKHR surfaceCaps;
+    vk::Extent2D dimensions;
+    vk::SurfaceFormatKHR format;
+    vk::PresentModeKHR presentationMode;
+};
+
+[[nodiscard]] auto
+clamp_extent_dimensions(
+        vk::Extent2D const minExtent,
+        vk::Extent2D const maxExtent,
+        vk::Extent2D const requestedExtent) -> vk::Extent2D
+{
+    auto const maxAndMinAreOrdered =
+            std::tie(maxExtent.width, maxExtent.height)
+            >= std::tie(minExtent.width, minExtent.height);
+
+    if(!(maxAndMinAreOrdered)) {
+        throw std::logic_error(
+                "maxExtent is not greater than or equal to minExtent");
+    }
+
+    auto const clampedWidth =
+            std::clamp(requestedExtent.width, minExtent.width, maxExtent.width);
+
+    auto const clampedHeight = std::clamp(
+            requestedExtent.height,
+            minExtent.height,
+            maxExtent.height);
+
+    return {clampedWidth, clampedHeight};
+}
+
+[[nodiscard]] auto
+choose_format(
+        std::vector<vk::SurfaceFormatKHR> const availableFormats,
+        vk::SurfaceFormatKHR const requestedFormat) -> vk::SurfaceFormatKHR
+{
+    auto const requestedFormatSupported = std::find(
+                                                  std::cbegin(availableFormats),
+                                                  std::cend(availableFormats),
+                                                  requestedFormat)
+                                          != std::cend(availableFormats);
+    if(requestedFormatSupported) {
+        return requestedFormat;
+    }
+
+    std::cerr << "Requested SurfaceFormatKHR not supported\n";
+
+    auto const defaultFormatNotSupported =
+            std::find(
+                    std::cbegin(availableFormats),
+                    std::cend(availableFormats),
+                    defaultSurfaceFormat)
+            == std::cend(availableFormats);
+    if(defaultFormatNotSupported) {
+        throw std::runtime_error(
+                "Default SurfaceFormatKHR not supported!\n"
+                "Please request a supported format.");
+    }
+
+    return defaultSurfaceFormat;
+}
+[[nodiscard]] auto
+choose_presentation_mode(
+        std::vector<vk::PresentModeKHR> const supportedModes,
+        vk::PresentModeKHR const requestedPresentMode) -> vk::PresentModeKHR
+{
+    auto const requestedModeSupported = std::find(
+                                                std::cbegin(supportedModes),
+                                                std::cend(supportedModes),
+                                                requestedPresentMode)
+                                        != std::cend(supportedModes);
+
+    if(requestedModeSupported) {
+        return requestedPresentMode;
+    }
+
+    std::cerr << "Requested PresentModeKHR is not supported!\n";
+
+    auto const defaultModeNotSupported = std::find(
+                                                 std::cbegin(supportedModes),
+                                                 std::cend(supportedModes),
+                                                 defaultPresentationMode)
+                                         == std::cend(supportedModes);
+
+    if(defaultModeNotSupported) {
+        throw std::runtime_error(
+                "Default PresentModeKHR is not supported!\n"
+                "Please request a supported PresentModeKHR");
+    }
+
+    return defaultPresentationMode;
+}
+
+[[nodiscard]] auto
+choose_swap_chain_details(
+        vk::PhysicalDevice const& device,
+        vk::UniqueSurfaceKHR const& surface,
+        vk::Extent2D const requestedExtent,
+        vk::SurfaceFormatKHR const requestedFormat,
+        vk::PresentModeKHR const requestedPresentMode) -> SwapChainDetails
+{
+    auto const surfaceCaps   = device.getSurfaceCapabilitiesKHR(*surface);
+    auto const clampedExtent = clamp_extent_dimensions(
+            surfaceCaps.minImageExtent,
+            surfaceCaps.maxImageExtent,
+            requestedExtent);
+
+    auto const chosenFormat = choose_format(
+            device.getSurfaceFormatsKHR(*surface),
+            requestedFormat);
+
+    auto const chosenPresentMode = choose_presentation_mode(
+            device.getSurfacePresentModesKHR(*surface),
+            requestedPresentMode);
+
+    return {surfaceCaps, clampedExtent, chosenFormat, chosenPresentMode};
+}
+
+[[nodiscard]] auto
+create_swap_chain(
+        vk::PhysicalDevice const& physicalDevice,
+        vk::UniqueSurfaceKHR const& surface,
+        vk::UniqueDevice const& logicalDevice,
+        vk::Extent2D const requestedDimensions,
+        vk::SurfaceFormatKHR const requestedFormat,
+        vk::PresentModeKHR const requestedPresentMode,
+        std::vector<uint32_t> const& queueFamilyIndicies)
+        -> vk::UniqueSwapchainKHR
+{
+    auto const [surfaceCaps, dimensions, format, presentMode] =
+            choose_swap_chain_details(
+                    physicalDevice,
+                    surface,
+                    requestedDimensions,
+                    requestedFormat,
+                    requestedPresentMode);
+
+    auto const sharingMode = queueFamilyIndicies.size() > 1u
+                                     ? vk::SharingMode::eConcurrent
+                                     : vk::SharingMode::eExclusive;
+
+    auto const creationInfo = vk::SwapchainCreateInfoKHR(
+            {},
+            *surface,
+            surfaceCaps.minImageCount,
+            format.format,
+            format.colorSpace,
+            dimensions,
+            1,
+            vk::ImageUsageFlagBits::eColorAttachment,
+            sharingMode,
+            queueFamilyIndicies.size(),
+            queueFamilyIndicies.data(),
+            surfaceCaps.currentTransform,
+            vk::CompositeAlphaFlagBitsKHR::eOpaque,
+            presentMode,
+            VK_TRUE);
+
+    return logicalDevice->createSwapchainKHRUnique(creationInfo);
 }
 
 }    // namespace vulkanUtils
