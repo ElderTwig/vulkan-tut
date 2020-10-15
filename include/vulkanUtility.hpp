@@ -88,6 +88,26 @@ create_swap_chain(
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR;
 
+[[nodiscard]] auto
+create_swap_chain(
+        vk::PhysicalDevice const& physicalDevice,
+        vk::UniqueSurfaceKHR const& surface,
+        vk::UniqueDevice const& logicalDevice,
+        vk::Extent2D requestedDimensions,
+        std::vector<uint32_t> const& queueFamilyIndicies)
+        -> vk::UniqueSwapchainKHR;
+
+[[nodiscard]] auto
+create_swap_chain(
+        vk::PhysicalDevice const& physicalDevice,
+        vk::UniqueSurfaceKHR const& surface,
+        vk::UniqueDevice const& logicalDevice,
+        vk::Extent2D requestedDimensions,
+        std::vector<vk::SurfaceFormatKHR> requestedFormats,
+        std::vector<vk::PresentModeKHR> requestedPresentModes,
+        std::vector<uint32_t> const& queueFamilyIndicies)
+        -> vk::UniqueSwapchainKHR;
+
 }    // namespace vulkanUtils
 
 #endif    // VK_TUT_VULKAN_UTILITY

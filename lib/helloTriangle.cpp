@@ -59,9 +59,12 @@ HelloTriangle::HelloTriangle() :
                     m_surface,
                     m_logicalDevice,
                     {width, height},
-                    vulkanUtils::defaultSurfaceFormat,
-                    vulkanUtils::defaultPresentationMode,
-                    m_queueIndicies))
+                    {vulkanUtils::defaultSurfaceFormat},
+                    {vk::PresentModeKHR::eFifoRelaxed,
+                     vk::PresentModeKHR::eFifo},
+                    m_queueIndicies)),
+            m_swapChainImages(
+                    m_logicalDevice->getSwapchainImagesKHR(*m_swapChain))
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }

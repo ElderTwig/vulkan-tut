@@ -50,6 +50,7 @@ private:
     vk::Queue m_deviceQueue;
 
     vk::UniqueSwapchainKHR m_swapChain;
+    std::vector<vk::Image> m_swapChainImages;
 
     auto
     main_loop() -> void;
