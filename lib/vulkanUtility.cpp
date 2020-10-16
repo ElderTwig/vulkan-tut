@@ -100,7 +100,7 @@ create_instance(std::vector<char const*> const& requiredValidationLayers)
 }
 
 [[nodiscard]] auto
-create_loader_dispatcher_pair(vk::UniqueInstance& instance)
+create_loader_dispatcher_pair(vk::UniqueInstance const& instance)
         -> LoaderDispatcherPair
 {
     auto loader = vk::DynamicLoader{};
@@ -129,7 +129,7 @@ debugCallback(
 
 [[nodiscard]] auto
 create_debug_messenger(
-        vk::UniqueInstance& instance,
+        vk::UniqueInstance const& instance,
         vk::DispatchLoaderDynamic const& dispatcher)
         -> UniqueDebugUtilsMessengerEXT
 {
@@ -528,6 +528,49 @@ create_swap_chain(
             surface,
             queueFamilyIndicies,
             logicalDevice);
+}
+
+[[nodiscard]] auto
+create_image_view(
+        vk::UniqueDevice const& logicalDevice,
+        vk::Image const& image,
+        vk::Format const imageFormat) -> vk::UniqueImageView
+{
+    auto constexpr subresourceRange = vk::ImageSubresourceRange(
+            vk::ImageAspectFlagBits::eColor,
+            0,
+            1,
+            0,
+            1);
+
+    auto const creationInfo = vk::ImageViewCreateInfo(
+            {},
+            image,
+            vk::ImageViewType::e2D,
+            imageFormat,
+            {},
+            subresourceRange);
+
+    return logicalDevice->createImageViewUnique(creationInfo);
+}
+
+[[nodiscard]] auto
+create_image_views(
+        vk::UniqueDevice const& logicalDevice,
+        std::vector<vk::Image> const& images,
+        vk::Format const imageFormat) -> std::vector<vk::UniqueImageView>
+{
+    auto imageViews = std::vector<vk::UniqueImageView>(images.size());
+
+    std::transform(
+            std::cbegin(images),
+            std::cend(images),
+            std::begin(imageViews),
+            [&](vk::Image const& image) {
+                return create_image_view(logicalDevice, image, imageFormat);
+            });
+
+    return imageViews;
 }
 
 }    // namespace vulkanUtils

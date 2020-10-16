@@ -54,17 +54,22 @@ HelloTriangle::HelloTriangle() :
                     m_deviceExtensions)},
             m_deviceQueue{
                     m_logicalDevice->getQueue(m_graphicsQueues.position, 0)},
-            m_swapChain(vulkanUtils::create_swap_chain(
+            m_swapChain{vulkanUtils::create_swap_chain(
                     m_physicalDevice,
                     m_surface,
                     m_logicalDevice,
                     {width, height},
-                    {vulkanUtils::defaultSurfaceFormat},
+                    {m_surfaceFormat},
                     {vk::PresentModeKHR::eFifoRelaxed,
                      vk::PresentModeKHR::eFifo},
-                    m_queueIndicies)),
+                    m_queueIndicies)},
             m_swapChainImages(
-                    m_logicalDevice->getSwapchainImagesKHR(*m_swapChain))
+                    m_logicalDevice->getSwapchainImagesKHR(*m_swapChain)),
+            m_imageViews{vulkanUtils::create_image_views(
+                    m_logicalDevice,
+                    m_swapChainImages,
+                    m_surfaceFormat.format)}
+
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }

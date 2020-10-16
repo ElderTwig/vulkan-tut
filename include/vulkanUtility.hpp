@@ -27,7 +27,7 @@ struct LoaderDispatcherPair {
 };
 
 [[nodiscard]] auto
-create_loader_dispatcher_pair(vk::UniqueInstance& instance)
+create_loader_dispatcher_pair(vk::UniqueInstance const& instance)
         -> LoaderDispatcherPair;
 
 using UniqueDebugUtilsMessengerEXT =
@@ -35,7 +35,7 @@ using UniqueDebugUtilsMessengerEXT =
 
 [[nodiscard]] auto
 create_debug_messenger(
-        vk::UniqueInstance& instance,
+        vk::UniqueInstance const& instance,
         vk::DispatchLoaderDynamic const& dispatcher)
         -> UniqueDebugUtilsMessengerEXT;
 
@@ -107,6 +107,12 @@ create_swap_chain(
         std::vector<vk::PresentModeKHR> requestedPresentModes,
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR;
+
+[[nodiscard]] auto
+create_image_views(
+        vk::UniqueDevice const& logicalDevice,
+        std::vector<vk::Image> const& images,
+        vk::Format imageFormat) -> std::vector<vk::UniqueImageView>;
 
 }    // namespace vulkanUtils
 
