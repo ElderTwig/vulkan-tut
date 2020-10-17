@@ -10,6 +10,9 @@
 
 namespace vulkanUtils {
 
+auto constexpr vkFalse = VK_FALSE;
+auto constexpr vkTrue  = VK_TRUE;
+
 [[nodiscard]] auto
 extensions_supported(std::vector<char const*> const& extensionNames) noexcept
         -> bool;
@@ -113,6 +116,26 @@ create_image_views(
         vk::UniqueDevice const& logicalDevice,
         std::vector<vk::Image> const& images,
         vk::Format imageFormat) -> std::vector<vk::UniqueImageView>;
+
+[[nodiscard]] auto constexpr create_viewport(int width, int height) noexcept
+        -> vk::Viewport
+{
+    return vk::Viewport(0.f, 0.f, (float)width, (float)height, 0.f, 1.f);
+}
+
+[[nodiscard]] auto constexpr create_scissor(int width, int height) noexcept
+        -> vk::Rect2D
+{
+    return vk::Rect2D({}, vk::Extent2D(width, height));
+}
+
+[[nodiscard]] auto constexpr create_viewport_state(
+        vk::Viewport const& viewport,
+        vk::Rect2D const& scissor) noexcept
+        -> vk::PipelineViewportStateCreateInfo
+{
+    return vk::PipelineViewportStateCreateInfo({}, 1, &viewport, 1, &scissor);
+}
 
 }    // namespace vulkanUtils
 

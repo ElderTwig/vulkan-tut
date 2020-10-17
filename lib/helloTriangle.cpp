@@ -79,7 +79,17 @@ HelloTriangle::HelloTriangle() :
                     shaderUtils::shader_stage_creation_info(
                             m_fragShader.module,
                             shaderUtils::FragmentShader::type,
-                            "main")}
+                            "main")},
+            m_vertexInputInfo{},
+            m_inputAssembly(
+                    {},
+                    vk::PrimitiveTopology::eTriangleList,
+                    vulkanUtils::vkFalse),
+            m_viewPort(vulkanUtils::create_viewport(width, height)),
+            m_scissor(vulkanUtils::create_scissor(width, height)),
+            m_viewportState(
+                    vulkanUtils::create_viewport_state(m_viewPort, m_scissor))
+
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }

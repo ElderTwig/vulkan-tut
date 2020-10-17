@@ -61,6 +61,13 @@ private:
     std::array<vk::PipelineShaderStageCreateInfo, 2> const
             m_pipelineCreationInfos;
 
+    vk::PipelineVertexInputStateCreateInfo const m_vertexInputInfo;
+    vk::PipelineInputAssemblyStateCreateInfo const m_inputAssembly;
+
+    vk::Viewport const m_viewPort;
+    vk::Rect2D const m_scissor;
+    vk::PipelineViewportStateCreateInfo const m_viewportState;
+
     auto
     main_loop() -> void;
 
