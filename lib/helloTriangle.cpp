@@ -68,8 +68,18 @@ HelloTriangle::HelloTriangle() :
             m_imageViews{vulkanUtils::create_image_views(
                     m_logicalDevice,
                     m_swapChainImages,
-                    m_surfaceFormat.format)}
-
+                    m_surfaceFormat.format)},
+            m_vertShader{m_logicalDevice, "triangle"},
+            m_fragShader{m_logicalDevice, "triangle"},
+            m_pipelineCreationInfos{
+                    shaderUtils::shader_stage_creation_info(
+                            m_vertShader.module,
+                            shaderUtils::VertexShader::type,
+                            "main"),
+                    shaderUtils::shader_stage_creation_info(
+                            m_fragShader.module,
+                            shaderUtils::FragmentShader::type,
+                            "main")}
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }

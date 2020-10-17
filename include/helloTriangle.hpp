@@ -3,6 +3,7 @@
 
 #include "glfwUtility.hpp"
 #include "vulkanUtility.hpp"
+#include "shaderUtility.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -54,6 +55,11 @@ private:
     vk::UniqueSwapchainKHR const m_swapChain;
     std::vector<vk::Image> const m_swapChainImages;
     std::vector<vk::UniqueImageView> const m_imageViews;
+
+    shaderUtils::VertexShader const m_vertShader;
+    shaderUtils::FragmentShader const m_fragShader;
+    std::array<vk::PipelineShaderStageCreateInfo, 2> const
+            m_pipelineCreationInfos;
 
     auto
     main_loop() -> void;
