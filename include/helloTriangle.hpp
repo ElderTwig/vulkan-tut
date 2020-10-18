@@ -68,6 +68,15 @@ private:
     vk::Rect2D const m_scissor;
     vk::PipelineViewportStateCreateInfo const m_viewportState;
 
+    vk::PipelineRasterizationStateCreateInfo const m_rasterizerState;
+    vk::PipelineMultisampleStateCreateInfo const m_multisamplingState;
+    vk::PipelineDepthStencilStateCreateInfo const m_depthStencilState;
+
+    vk::PipelineColorBlendAttachmentState const m_colourBlendAttatchment;
+    vk::PipelineColorBlendStateCreateInfo const m_colourBlendState;
+
+    vk::UniquePipelineLayout const m_pipelineLayout;
+
     auto
     main_loop() -> void;
 

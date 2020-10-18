@@ -137,6 +137,38 @@ create_image_views(
     return vk::PipelineViewportStateCreateInfo({}, 1, &viewport, 1, &scissor);
 }
 
+auto constexpr allColourComponents =
+        vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG
+        | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA;
+
+auto constexpr defaultBlendAttachment = vk::PipelineColorBlendAttachmentState(
+        vkTrue,
+        vk::BlendFactor::eSrcAlpha,
+        vk::BlendFactor::eOneMinusSrcAlpha,
+        vk::BlendOp::eAdd,
+        vk::BlendFactor::eSrcAlpha,
+        vk::BlendFactor::eOneMinusSrcAlpha,
+        vk::BlendOp::eAdd,
+        allColourComponents);
+
+auto constexpr defaultBlendConstants = std::array{1.0f, 1.0f, 1.0f, 1.0f};
+
+auto constexpr defaultBlendState = vk::PipelineColorBlendStateCreateInfo(
+        {},
+        vkFalse,
+        {},
+        1,
+        &defaultBlendAttachment,
+        defaultBlendConstants);
+
+auto constexpr defaultDynamicStates =
+        std::array{vk::DynamicState::eViewport, vk::DynamicState::eLineWidth};
+
+auto constexpr defaultDynamicStateInfo = vk::PipelineDynamicStateCreateInfo(
+        {},
+        defaultDynamicStates.size(),
+        defaultDynamicStates.data());
+
 }    // namespace vulkanUtils
 
 #endif    // VK_TUT_VULKAN_UTILITY

@@ -87,9 +87,21 @@ HelloTriangle::HelloTriangle() :
                     vulkanUtils::vkFalse),
             m_viewPort(vulkanUtils::create_viewport(width, height)),
             m_scissor(vulkanUtils::create_scissor(width, height)),
-            m_viewportState(
-                    vulkanUtils::create_viewport_state(m_viewPort, m_scissor))
-
+            m_viewportState{
+                    vulkanUtils::create_viewport_state(m_viewPort, m_scissor)},
+            m_rasterizerState(
+                    {},
+                    {},
+                    {},
+                    {},
+                    vk::CullModeFlagBits::eBack,
+                    vk::FrontFace::eClockwise),
+            m_multisamplingState{},
+            m_depthStencilState{},
+            m_colourBlendAttatchment{vulkanUtils::defaultBlendAttachment},
+            m_colourBlendState{vulkanUtils::defaultBlendState},
+            m_pipelineLayout{m_logicalDevice->createPipelineLayoutUnique(
+                    vk::PipelineLayoutCreateInfo{})}
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }
