@@ -101,7 +101,33 @@ HelloTriangle::HelloTriangle() :
             m_colourBlendAttatchment{vulkanUtils::defaultBlendAttachment},
             m_colourBlendState{vulkanUtils::defaultBlendState},
             m_pipelineLayout{m_logicalDevice->createPipelineLayoutUnique(
-                    vk::PipelineLayoutCreateInfo{})}
+                    vk::PipelineLayoutCreateInfo{})},
+            m_renderpass{vulkanUtils::create_render_pass(
+                    m_logicalDevice,
+                    m_surfaceFormat.format)},
+            m_graphicsPipeline{
+                    m_logicalDevice
+                            ->createGraphicsPipelineUnique(
+                                    {},
+                                    vk::GraphicsPipelineCreateInfo(
+                                            {},
+                                            2,
+                                            m_pipelineCreationInfos.data(),
+                                            &m_vertexInputInfo,
+                                            &m_inputAssembly,
+                                            nullptr,
+                                            &m_viewportState,
+                                            &m_rasterizerState,
+                                            &m_multisamplingState,
+                                            &m_depthStencilState,
+                                            &m_colourBlendState,
+                                            nullptr,
+                                            *m_pipelineLayout,
+                                            *m_renderpass,
+                                            uint32_t{0},
+                                            {},
+                                            int32_t{-1}))
+                            .value}
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }

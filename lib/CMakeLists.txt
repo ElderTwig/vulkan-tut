@@ -4,18 +4,18 @@ file(GLOB SRC
 add_library(vkTut_lib SHARED)
     
 target_sources(vkTut_lib 
-    PUBLIC ${SRC})
+    PRIVATE ${SRC})
 
 target_include_directories(vkTut_lib
     PUBLIC ../include)
 
 target_link_libraries(vkTut_lib
-    PUBLIC 
-        ${CMAKE_DL_LIBS}
+    PUBLIC
         Vulkan::Vulkan
         glfw::glfw
         glm::glm
-        Microsoft.GSL::GSL)
+        Microsoft.GSL::GSL
+        ${CMAKE_DL_LIBS})
 
 set_target_properties(vkTut_lib
     PROPERTIES

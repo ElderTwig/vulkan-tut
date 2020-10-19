@@ -169,6 +169,10 @@ auto constexpr defaultDynamicStateInfo = vk::PipelineDynamicStateCreateInfo(
         defaultDynamicStates.size(),
         defaultDynamicStates.data());
 
+[[nodiscard]] auto
+create_render_pass(vk::UniqueDevice const& logicalDevice, vk::Format format)
+        -> vk::UniqueRenderPass;
+
 }    // namespace vulkanUtils
 
 #endif    // VK_TUT_VULKAN_UTILITY

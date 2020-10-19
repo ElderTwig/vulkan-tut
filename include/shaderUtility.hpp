@@ -11,7 +11,7 @@ namespace shaderUtils {
 
 enum class ShaderType : VkShaderStageFlags {
     Vertex   = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT,
-    Fragment = VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT
+    Fragment = VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT
 };
 
 [[nodiscard]] auto

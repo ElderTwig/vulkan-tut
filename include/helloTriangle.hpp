@@ -77,6 +77,10 @@ private:
 
     vk::UniquePipelineLayout const m_pipelineLayout;
 
+    vk::UniqueRenderPass const m_renderpass;
+
+    vk::UniquePipeline const m_graphicsPipeline;
+
     auto
     main_loop() -> void;
 

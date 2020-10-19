@@ -573,4 +573,42 @@ create_image_views(
     return imageViews;
 }
 
+[[nodiscard]] auto constexpr colour_attachment(vk::Format format) noexcept
+        -> vk::AttachmentDescription
+{
+    return vk::AttachmentDescription(
+            {},
+            format,
+            vk::SampleCountFlagBits::e1,
+            {},
+            {},
+            vk::AttachmentLoadOp::eDontCare,
+            vk::AttachmentStoreOp::eDontCare,
+            static_cast<vk::ImageLayout>(vk::AttachmentLoadOp::eDontCare),
+            vk::ImageLayout::ePresentSrcKHR);
+}
+
+[[nodiscard]] auto
+create_render_pass(vk::UniqueDevice const& logicalDevice, vk::Format format)
+        -> vk::UniqueRenderPass
+{
+    auto const colourAttachment          = colour_attachment(format);
+    auto const colourAttachmentReference = vk::AttachmentReference{
+            0,
+            vk::ImageLayout::eColorAttachmentOptimal};
+
+    auto const subpass = vk::SubpassDescription(
+            {},
+            vk::PipelineBindPoint::eGraphics,
+            {},
+            {},
+            1,
+            &colourAttachmentReference);
+
+    auto const renderPassCreationInfo =
+            vk::RenderPassCreateInfo({}, 1, &colourAttachment, 1, &subpass);
+
+    return logicalDevice->createRenderPassUnique(renderPassCreationInfo);
+}
+
 }    // namespace vulkanUtils
