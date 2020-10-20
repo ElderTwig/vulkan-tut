@@ -109,10 +109,9 @@ HelloTriangle::HelloTriangle() :
                     m_logicalDevice
                             ->createGraphicsPipelineUnique(
                                     {},
-                                    vk::GraphicsPipelineCreateInfo(
+                                    vulkanUtils::graphics_pipeline_create_info(
                                             {},
-                                            2,
-                                            m_pipelineCreationInfos.data(),
+                                            &m_pipelineCreationInfos,
                                             &m_vertexInputInfo,
                                             &m_inputAssembly,
                                             nullptr,
@@ -122,11 +121,9 @@ HelloTriangle::HelloTriangle() :
                                             &m_depthStencilState,
                                             &m_colourBlendState,
                                             nullptr,
-                                            *m_pipelineLayout,
-                                            *m_renderpass,
-                                            uint32_t{0},
-                                            {},
-                                            int32_t{-1}))
+                                            m_pipelineLayout,
+                                            m_renderpass,
+                                            0))
                             .value}
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';

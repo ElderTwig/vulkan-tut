@@ -173,6 +173,34 @@ auto constexpr defaultDynamicStateInfo = vk::PipelineDynamicStateCreateInfo(
 create_render_pass(vk::UniqueDevice const& logicalDevice, vk::Format format)
         -> vk::UniqueRenderPass;
 
+using ShaderStageInfoVec = std::vector<vk::PipelineShaderStageCreateInfo>;
+using VertexInputState   = vk::PipelineVertexInputStateCreateInfo;
+using InputAssemblyState = vk::PipelineInputAssemblyStateCreateInfo;
+using TessellationState  = vk::PipelineTessellationStateCreateInfo;
+using ViewportState      = vk::PipelineViewportStateCreateInfo;
+using RasterizationState = vk::PipelineRasterizationStateCreateInfo;
+using MultisampleState   = vk::PipelineMultisampleStateCreateInfo;
+using DepthStencilState  = vk::PipelineDepthStencilStateCreateInfo;
+using ColourBlendState   = vk::PipelineColorBlendStateCreateInfo;
+using DynamicState       = vk::PipelineDynamicStateCreateInfo;
+
+[[nodiscard]] auto
+graphics_pipeline_create_info(
+        vk::PipelineCreateFlags flags,
+        ShaderStageInfoVec const* shaderStages,
+        VertexInputState const* vertexInputState,
+        InputAssemblyState const* inputAssemblyState,
+        TessellationState const* tessellationState,
+        ViewportState const* viewportState,
+        RasterizationState const* rasterizationState,
+        MultisampleState const* multisampleState,
+        DepthStencilState const* depthStencilState,
+        ColourBlendState const* colourBlendState,
+        DynamicState const* dynamicState,
+        vk::UniquePipelineLayout const& layout,
+        vk::UniqueRenderPass const& renderPass,
+        uint32_t renderPassPosition) -> vk::GraphicsPipelineCreateInfo;
+
 }    // namespace vulkanUtils
 
 #endif    // VK_TUT_VULKAN_UTILITY

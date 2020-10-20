@@ -611,4 +611,43 @@ create_render_pass(vk::UniqueDevice const& logicalDevice, vk::Format format)
     return logicalDevice->createRenderPassUnique(renderPassCreationInfo);
 }
 
+auto a = vk::GraphicsPipelineCreateInfo();
+
+[[nodiscard]] auto
+graphics_pipeline_create_info(
+        vk::PipelineCreateFlags const flags,
+        ShaderStageInfoVec const* shaderStages,
+        VertexInputState const* vertexInputState,
+        InputAssemblyState const* inputAssemblyState,
+        TessellationState const* tessellationState,
+        ViewportState const* viewportState,
+        RasterizationState const* rasterizationState,
+        MultisampleState const* multisampleState,
+        DepthStencilState const* depthStencilState,
+        ColourBlendState const* colourBlendState,
+        DynamicState const* dynamicState,
+        vk::UniquePipelineLayout const& layout,
+        vk::UniqueRenderPass const& renderPass,
+        uint32_t const renderPassPosition) -> vk::GraphicsPipelineCreateInfo
+{
+    return vk::GraphicsPipelineCreateInfo(
+            flags,
+            shaderStages->size(),
+            shaderStages->data(),
+            vertexInputState,
+            inputAssemblyState,
+            tessellationState,
+            viewportState,
+            rasterizationState,
+            multisampleState,
+            depthStencilState,
+            colourBlendState,
+            dynamicState,
+            *layout,
+            *renderPass,
+            renderPassPosition,
+            nullptr,
+            -1);
+}
+
 }    // namespace vulkanUtils

@@ -58,7 +58,7 @@ private:
 
     shaderUtils::VertexShader const m_vertShader;
     shaderUtils::FragmentShader const m_fragShader;
-    std::array<vk::PipelineShaderStageCreateInfo, 2> const
+    std::vector<vk::PipelineShaderStageCreateInfo> const
             m_pipelineCreationInfos;
 
     vk::PipelineVertexInputStateCreateInfo const m_vertexInputInfo;
@@ -76,10 +76,10 @@ private:
     vk::PipelineColorBlendStateCreateInfo const m_colourBlendState;
 
     vk::UniquePipelineLayout const m_pipelineLayout;
-
     vk::UniqueRenderPass const m_renderpass;
-
     vk::UniquePipeline const m_graphicsPipeline;
+
+    std::vector<vk::UniqueFramebuffer> const m_framebuffers;
 
     auto
     main_loop() -> void;
