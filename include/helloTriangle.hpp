@@ -80,6 +80,7 @@ private:
     vk::UniquePipeline const m_graphicsPipeline;
 
     std::vector<vk::UniqueFramebuffer> const m_framebuffers;
+    vk::UniqueCommandPool const m_commandPool;
 
     auto
     main_loop() -> void;

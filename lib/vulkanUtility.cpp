@@ -116,7 +116,7 @@ create_loader_dispatcher_pair(vk::UniqueInstance const& instance)
 VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT,
+        VkDebugUtilsMessageTypeFlagsEXT /*unused*/,
         VkDebugUtilsMessengerCallbackDataEXT const* pCallbackData,
         void* /*pUserData*/)
 {
@@ -632,8 +632,8 @@ graphics_pipeline_create_info(
 {
     return vk::GraphicsPipelineCreateInfo(
             flags,
-            shaderStages->size(),
-            shaderStages->data(),
+            shaderStages != nullptr ? shaderStages->size() : 0,
+            shaderStages != nullptr ? shaderStages->data() : nullptr,
             vertexInputState,
             inputAssemblyState,
             tessellationState,
@@ -648,6 +648,59 @@ graphics_pipeline_create_info(
             renderPassPosition,
             nullptr,
             -1);
+}
+
+[[nodiscard]] auto
+create_framebuffer(
+        vk::UniqueDevice const& logicalDevice,
+        vk::UniqueRenderPass const& renderPass,
+        vk::UniqueImageView const& imageView,
+        vk::Extent2D const imageDimensions) -> vk::UniqueFramebuffer
+{
+    auto const creationInfo = vk::FramebufferCreateInfo(
+            {},
+            *renderPass,
+            1,
+            &imageView.get(),
+            imageDimensions.width,
+            imageDimensions.height,
+            1);
+
+    return logicalDevice->createFramebufferUnique(creationInfo);
+}
+
+[[nodiscard]] auto
+create_framebuffers(
+        vk::UniqueDevice const& logicalDevice,
+        vk::UniqueRenderPass const& renderPass,
+        std::vector<vk::UniqueImageView> const& imageViews,
+        vk::Extent2D imageDimensions) -> std::vector<vk::UniqueFramebuffer>
+{
+    auto framebuffers = std::vector<vk::UniqueFramebuffer>(imageViews.size());
+    std::transform(
+            std::cbegin(imageViews),
+            std::cend(imageViews),
+            std::begin(framebuffers),
+            [&](vk::UniqueImageView const& imageView) {
+                return create_framebuffer(
+                        logicalDevice,
+                        renderPass,
+                        imageView,
+                        imageDimensions);
+            });
+
+    return framebuffers;
+}
+
+[[nodiscard]] auto
+create_command_pool(
+        vk::UniqueDevice const& logicalDevice,
+        QueueFamilyAndPos const& queueFamily) -> vk::UniqueCommandPool
+{
+    auto const creationInfo =
+            vk::CommandPoolCreateInfo({}, queueFamily.position);
+
+    return logicalDevice->createCommandPoolUnique(creationInfo);
 }
 
 }    // namespace vulkanUtils

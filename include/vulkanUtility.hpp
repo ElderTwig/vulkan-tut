@@ -201,6 +201,18 @@ graphics_pipeline_create_info(
         vk::UniqueRenderPass const& renderPass,
         uint32_t renderPassPosition) -> vk::GraphicsPipelineCreateInfo;
 
+[[nodiscard]] auto
+create_framebuffers(
+        vk::UniqueDevice const& logicalDevice,
+        vk::UniqueRenderPass const& renderPass,
+        std::vector<vk::UniqueImageView> const& imageViews,
+        vk::Extent2D imageDimensions) -> std::vector<vk::UniqueFramebuffer>;
+
+[[nodiscard]] auto
+create_command_pool(
+        vk::UniqueDevice const& logicalDevice,
+        QueueFamilyAndPos const& queueFamily) -> vk::UniqueCommandPool;
+
 }    // namespace vulkanUtils
 
 #endif    // VK_TUT_VULKAN_UTILITY

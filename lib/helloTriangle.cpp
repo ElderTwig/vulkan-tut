@@ -124,7 +124,15 @@ HelloTriangle::HelloTriangle() :
                                             m_pipelineLayout,
                                             m_renderpass,
                                             0))
-                            .value}
+                            .value},
+            m_framebuffers{vulkanUtils::create_framebuffers(
+                    m_logicalDevice,
+                    m_renderpass,
+                    m_imageViews,
+                    {width, height})},
+            m_commandPool{vulkanUtils::create_command_pool(
+                    m_logicalDevice,
+                    m_graphicsQueues)}
 {
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }
