@@ -69,25 +69,12 @@ private:
 
     shaderUtils::VertexShader const m_vertShader;
     shaderUtils::FragmentShader const m_fragShader;
-    std::vector<vk::PipelineShaderStageCreateInfo> const
-            m_pipelineCreationInfos;
-
-    vk::PipelineVertexInputStateCreateInfo const m_vertexInputInfo;
-    vk::PipelineInputAssemblyStateCreateInfo const m_inputAssembly;
-
-    vk::Viewport const m_viewPort;
-    vk::Rect2D const m_scissor;
-    vk::PipelineViewportStateCreateInfo const m_viewportState;
-
-    vk::PipelineRasterizationStateCreateInfo const m_rasterizerState;
-    vk::PipelineMultisampleStateCreateInfo const m_multisamplingState;
-    vk::PipelineDepthStencilStateCreateInfo const m_depthStencilState;
 
     vk::PipelineColorBlendAttachmentState const m_colourBlendAttatchment;
     vk::PipelineColorBlendStateCreateInfo const m_colourBlendState;
 
     vk::UniquePipelineLayout const m_pipelineLayout;
-    vk::UniqueRenderPass const m_renderpass;
+    vk::UniqueRenderPass const m_renderPass;
     vk::UniquePipeline const m_graphicsPipeline;
 
     std::vector<vk::UniqueFramebuffer> const m_framebuffers;

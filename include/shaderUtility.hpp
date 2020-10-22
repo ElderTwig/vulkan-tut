@@ -1,9 +1,9 @@
 #ifndef VK_TUT_SHADER_UTILITY_HPP
 #define VK_TUT_SHADER_UTILITY_HPP
 
-#include <string_view>
 #include <vulkan/vulkan.hpp>
 
+#include <string_view>
 #include <vector>
 #include <string>
 

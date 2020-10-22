@@ -1,4 +1,5 @@
 #include "vulkanUtility.hpp"
+#include "shaderUtility.hpp"
 
 #include <numeric>
 #include <vulkan/vulkan.hpp>
@@ -566,8 +567,6 @@ create_render_pass(vk::UniqueDevice const& logicalDevice, vk::Format format)
     return logicalDevice->createRenderPassUnique(renderPassCreationInfo);
 }
 
-auto a = vk::GraphicsPipelineCreateInfo();
-
 [[nodiscard]] auto
 graphics_pipeline_create_info(
         vk::PipelineCreateFlags const flags,
@@ -603,6 +602,79 @@ graphics_pipeline_create_info(
             renderPassPosition,
             nullptr,
             -1);
+}
+
+[[nodiscard]] auto
+create_graphics_pipeline(
+        vk::UniqueDevice const& logicalDevice,
+        shaderUtils::VertexShader const& vertexShader,
+        shaderUtils::FragmentShader const& fragmentShader,
+        int const width,
+        int const height,
+        ColourBlendState const& colourBlendState,
+        DynamicState const* dynamicState,
+        vk::UniquePipelineLayout const& pipelineLayout,
+        vk::UniqueRenderPass const& renderPass) -> vk::UniquePipeline
+{
+    auto const shaderStageInfos = ShaderStageInfoVec{
+            shaderUtils::shader_stage_creation_info(
+                    vertexShader.module,
+                    shaderUtils::VertexShader::type,
+                    "main"),
+            shaderUtils::shader_stage_creation_info(
+                    fragmentShader.module,
+                    shaderUtils::FragmentShader::type,
+                    "main")};
+
+    auto constexpr vertexInput = VertexInputState{};
+
+    auto constexpr inputAssembly = InputAssemblyState(
+            {},
+            vk::PrimitiveTopology::eTriangleList,
+            vkFalse);
+
+    auto constexpr* tessellationStatePtr =
+            static_cast<TessellationState*>(nullptr);
+
+    auto const viewport      = create_viewport(width, height);
+    auto const scissor       = create_scissor(width, height);
+    auto const viewportState = create_viewport_state(viewport, scissor);
+
+    auto const rasterisationState = RasterizationState{
+            {},
+            vkFalse,
+            vkFalse,
+            vk::PolygonMode::eFill,
+            vk::CullModeFlagBits::eBack,
+            vk::FrontFace::eClockwise,
+            vkFalse,
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f};
+
+    auto constexpr multisampleState  = MultisampleState{};
+    auto constexpr depthStencilState = DepthStencilState{};
+
+    return logicalDevice
+            ->createGraphicsPipelineUnique(
+                    nullptr,
+                    vulkanUtils::graphics_pipeline_create_info(
+                            {},
+                            &shaderStageInfos,
+                            &vertexInput,
+                            &inputAssembly,
+                            tessellationStatePtr,
+                            &viewportState,
+                            &rasterisationState,
+                            &multisampleState,
+                            &depthStencilState,
+                            &colourBlendState,
+                            dynamicState,
+                            pipelineLayout,
+                            renderPass,
+                            0))
+            .value;
 }
 
 [[nodiscard]] auto

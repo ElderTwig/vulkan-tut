@@ -2,6 +2,7 @@
 #define VK_TUT_VULKAN_UTILITY
 
 #include "glfwUtility.hpp"
+#include "shaderUtility.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -192,6 +193,18 @@ graphics_pipeline_create_info(
         vk::UniquePipelineLayout const& layout,
         vk::UniqueRenderPass const& renderPass,
         uint32_t renderPassPosition) -> vk::GraphicsPipelineCreateInfo;
+
+[[nodiscard]] auto
+create_graphics_pipeline(
+        vk::UniqueDevice const& logicalDevice,
+        shaderUtils::VertexShader const& vertexShader,
+        shaderUtils::FragmentShader const& fragmentShader,
+        int width,
+        int height,
+        ColourBlendState const& colourBlendState,
+        DynamicState const* dynamicState,
+        vk::UniquePipelineLayout const& pipelineLayout,
+        vk::UniqueRenderPass const& renderPass) -> vk::UniquePipeline;
 
 [[nodiscard]] auto
 create_framebuffers(

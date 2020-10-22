@@ -136,70 +136,33 @@ HelloTriangle::HelloTriangle() :
                     m_staticSwapChainDetails.format.format)},
             m_vertShader{m_logicalDevice, "triangle"},
             m_fragShader{m_logicalDevice, "triangle"},
-            m_pipelineCreationInfos{
-                    shaderUtils::shader_stage_creation_info(
-                            m_vertShader.module,
-                            shaderUtils::VertexShader::type,
-                            "main"),
-                    shaderUtils::shader_stage_creation_info(
-                            m_fragShader.module,
-                            shaderUtils::FragmentShader::type,
-                            "main")},
-            m_vertexInputInfo{},
-            m_inputAssembly(
-                    {},
-                    vk::PrimitiveTopology::eTriangleList,
-                    vulkanUtils::vkFalse),
-            m_viewPort(vulkanUtils::create_viewport(width, height)),
-            m_scissor(vulkanUtils::create_scissor(width, height)),
-            m_viewportState{
-                    vulkanUtils::create_viewport_state(m_viewPort, m_scissor)},
-            m_rasterizerState(
-                    {},
-                    {},
-                    {},
-                    {},
-                    vk::CullModeFlagBits::eBack,
-                    vk::FrontFace::eClockwise),
-            m_multisamplingState{},
-            m_depthStencilState{},
             m_colourBlendAttatchment{vulkanUtils::defaultBlendAttachment},
             m_colourBlendState{vulkanUtils::defaultBlendState},
             m_pipelineLayout{m_logicalDevice->createPipelineLayoutUnique(
                     vk::PipelineLayoutCreateInfo{})},
-            m_renderpass{vulkanUtils::create_render_pass(
+            m_renderPass{vulkanUtils::create_render_pass(
                     m_logicalDevice,
                     m_staticSwapChainDetails.format.format)},
-            m_graphicsPipeline{
-                    m_logicalDevice
-                            ->createGraphicsPipelineUnique(
-                                    {},
-                                    vulkanUtils::graphics_pipeline_create_info(
-                                            {},
-                                            &m_pipelineCreationInfos,
-                                            &m_vertexInputInfo,
-                                            &m_inputAssembly,
-                                            nullptr,
-                                            &m_viewportState,
-                                            &m_rasterizerState,
-                                            &m_multisamplingState,
-                                            &m_depthStencilState,
-                                            &m_colourBlendState,
-                                            nullptr,
-                                            m_pipelineLayout,
-                                            m_renderpass,
-                                            0))
-                            .value},
+            m_graphicsPipeline{vulkanUtils::create_graphics_pipeline(
+                    m_logicalDevice,
+                    m_vertShader,
+                    m_fragShader,
+                    width,
+                    height,
+                    m_colourBlendState,
+                    nullptr,
+                    m_pipelineLayout,
+                    m_renderPass)},
             m_framebuffers{vulkanUtils::create_framebuffers(
                     m_logicalDevice,
-                    m_renderpass,
+                    m_renderPass,
                     m_imageViews,
                     {width, height})},
             m_commandPool{vulkanUtils::create_command_pool(
                     m_logicalDevice,
                     m_graphicsQueues)},
             m_commandBuffers{record_commands_to_command_buffers(
-                    m_renderpass,
+                    m_renderPass,
                     m_framebuffers,
                     {width, height},
                     m_graphicsPipeline,
@@ -227,18 +190,31 @@ HelloTriangle::HelloTriangle() :
 // HelloTriangle::recreate_swap_chain(vk::Extent2D const newDimensions)
 //{
 // auto const swapChain [[maybe_unused]] = vulkanUtils::create_swap_chain(
-// m_physicalDevice,
 // m_surface,
 // m_logicalDevice,
+// m_staticSwapChainDetails,
 // newDimensions,
-//{m_surfaceFormat},
-// m_presentationModes,
 // m_queueIndicies);
 
-// auto const imageViews = vulkanUtils::create_image_views(
+// auto const imageViews [[maybe_unused]] = vulkanUtils::create_image_views(
 // m_logicalDevice,
 // m_swapChainImages,
-//);
+// m_staticSwapChainDetails.format.format);
+
+// auto const renderPass [[maybe_unused]] = vulkanUtils::create_render_pass(
+// m_logicalDevice,
+// m_staticSwapChainDetails.format.format);
+
+// auto const graphicsPipeline [[maybe_unused]] =
+// vulkanUtils::create_graphics_pipeline(
+// m_logicalDevice,
+// m_vertShader,
+// m_fragShader,
+// newDimensions,
+// m_colourBlendState,
+// nullptr,
+// m_pipelineLayout,
+// m_renderPass);
 //}
 
 auto
