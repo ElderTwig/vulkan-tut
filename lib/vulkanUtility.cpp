@@ -306,13 +306,6 @@ create_logical_device(
     return physicalDevice.createDeviceUnique(deviceCreationInfo);
 }
 
-struct SwapChainDetails {
-    vk::SurfaceCapabilitiesKHR surfaceCaps;
-    vk::Extent2D dimensions;
-    vk::SurfaceFormatKHR format;
-    vk::PresentModeKHR presentationMode;
-};
-
 [[nodiscard]] auto
 clamp_extent_dimensions(
         vk::Extent2D const minExtent,
@@ -580,11 +573,11 @@ create_image_views(
             {},
             format,
             vk::SampleCountFlagBits::e1,
-            {},
-            {},
+            vk::AttachmentLoadOp::eClear,
+            vk::AttachmentStoreOp::eStore,
             vk::AttachmentLoadOp::eDontCare,
             vk::AttachmentStoreOp::eDontCare,
-            static_cast<vk::ImageLayout>(vk::AttachmentLoadOp::eDontCare),
+            vk::ImageLayout::eUndefined,
             vk::ImageLayout::ePresentSrcKHR);
 }
 
@@ -600,13 +593,27 @@ create_render_pass(vk::UniqueDevice const& logicalDevice, vk::Format format)
     auto const subpass = vk::SubpassDescription(
             {},
             vk::PipelineBindPoint::eGraphics,
-            {},
-            {},
+            0,
+            nullptr,
             1,
             &colourAttachmentReference);
 
-    auto const renderPassCreationInfo =
-            vk::RenderPassCreateInfo({}, 1, &colourAttachment, 1, &subpass);
+    auto constexpr subpassDependency = vk::SubpassDependency(
+            VK_SUBPASS_EXTERNAL,
+            0,
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,
+            vk::PipelineStageFlagBits::eColorAttachmentOutput,
+            vk::AccessFlagBits(0),
+            vk::AccessFlagBits::eColorAttachmentWrite);
+
+    auto const renderPassCreationInfo = vk::RenderPassCreateInfo(
+            {},
+            1,
+            &colourAttachment,
+            1,
+            &subpass,
+            1,
+            &subpassDependency);
 
     return logicalDevice->createRenderPassUnique(renderPassCreationInfo);
 }
@@ -701,6 +708,21 @@ create_command_pool(
             vk::CommandPoolCreateInfo({}, queueFamily.position);
 
     return logicalDevice->createCommandPoolUnique(creationInfo);
+}
+
+[[nodiscard]] auto
+allocate_command_buffers(
+        vk::UniqueDevice const& logicalDevice,
+        vk::UniqueCommandPool const& commandPool,
+        vk::CommandBufferLevel const commandLevel,
+        uint32_t const nrBuffers) -> std::vector<vk::UniqueCommandBuffer>
+{
+    auto const allocationInfo = vk::CommandBufferAllocateInfo(
+            *commandPool,
+            commandLevel,
+            nrBuffers);
+
+    return logicalDevice->allocateCommandBuffersUnique(allocationInfo);
 }
 
 }    // namespace vulkanUtils

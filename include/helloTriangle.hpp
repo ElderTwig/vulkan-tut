@@ -13,6 +13,10 @@
 #include <stdexcept>
 #include <cstdlib>
 
+static int constexpr maxFramesInFlight{2};
+using SemaphoreArray   = std::array<vk::UniqueSemaphore, maxFramesInFlight>;
+using MemoryFenceArray = std::array<vk::UniqueFence, maxFramesInFlight>;
+
 class HelloTriangle {
 public:
     static int constexpr width  = 800;
@@ -48,10 +52,15 @@ private:
     std::vector<uint32_t> const m_queueIndicies;
 
     vk::UniqueDevice const m_logicalDevice;
-    vk::Queue const m_deviceQueue;
+    vk::Queue const m_graphicsQueue;
+    vk::Queue const m_presentQueue;
 
     vk::SurfaceFormatKHR const m_surfaceFormat{
             vulkanUtils::defaultSurfaceFormat};
+    std::vector<vk::PresentModeKHR> const m_presentationModes{
+            vk::PresentModeKHR::eFifoRelaxed,
+            vk::PresentModeKHR::eFifo};
+
     vk::UniqueSwapchainKHR const m_swapChain;
     std::vector<vk::Image> const m_swapChainImages;
     std::vector<vk::UniqueImageView> const m_imageViews;
@@ -80,7 +89,13 @@ private:
     vk::UniquePipeline const m_graphicsPipeline;
 
     std::vector<vk::UniqueFramebuffer> const m_framebuffers;
+
     vk::UniqueCommandPool const m_commandPool;
+    std::vector<vk::UniqueCommandBuffer> const m_commandBuffers;
+
+    SemaphoreArray const m_imageAvailableSignals;
+    SemaphoreArray const m_renderFinishedSignals;
+    MemoryFenceArray const m_memoryFences;
 
     auto
     main_loop() -> void;

@@ -13,6 +13,28 @@ namespace vulkanUtils {
 auto constexpr vkFalse = VK_FALSE;
 auto constexpr vkTrue  = VK_TRUE;
 
+struct SwapChainDetails {
+    vk::SurfaceCapabilitiesKHR surfaceCaps;
+    vk::Extent2D dimensions;
+    vk::SurfaceFormatKHR format;
+    vk::PresentModeKHR presentationMode;
+};
+
+struct LoaderDispatcherPair {
+    vk::DynamicLoader loader;
+    vk::DispatchLoaderDynamic dispatcher;
+};
+
+struct QueueFamilyAndPos {
+    vk::QueueFamilyProperties properties;
+    long position;
+};
+
+struct QueueFamilies {
+    QueueFamilyAndPos graphics;
+    QueueFamilyAndPos present;
+};
+
 [[nodiscard]] auto
 extensions_supported(std::vector<char const*> const& extensionNames) noexcept
         -> bool;
@@ -23,11 +45,6 @@ layers_supported(std::vector<char const*> const& layerNames) noexcept -> bool;
 [[nodiscard]] auto
 create_instance(std::vector<char const*> const& requiredValidationLayers)
         -> vk::UniqueInstance;
-
-struct LoaderDispatcherPair {
-    vk::DynamicLoader loader;
-    vk::DispatchLoaderDynamic dispatcher;
-};
 
 [[nodiscard]] auto
 create_loader_dispatcher_pair(vk::UniqueInstance const& instance)
@@ -41,16 +58,6 @@ create_debug_messenger(
         vk::UniqueInstance const& instance,
         vk::DispatchLoaderDynamic const& dispatcher)
         -> UniqueDebugUtilsMessengerEXT;
-
-struct QueueFamilyAndPos {
-    vk::QueueFamilyProperties properties;
-    long position;
-};
-
-struct QueueFamilies {
-    QueueFamilyAndPos graphics;
-    QueueFamilyAndPos present;
-};
 
 [[nodiscard]] auto
 get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos;
@@ -212,6 +219,13 @@ create_framebuffers(
 create_command_pool(
         vk::UniqueDevice const& logicalDevice,
         QueueFamilyAndPos const& queueFamily) -> vk::UniqueCommandPool;
+
+[[nodiscard]] auto
+allocate_command_buffers(
+        vk::UniqueDevice const& logicalDevice,
+        vk::UniqueCommandPool const& commandPool,
+        vk::CommandBufferLevel commandLevel,
+        uint32_t nrBuffers) -> std::vector<vk::UniqueCommandBuffer>;
 
 }    // namespace vulkanUtils
 
