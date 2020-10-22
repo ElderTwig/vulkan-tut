@@ -55,11 +55,13 @@ private:
     vk::Queue const m_graphicsQueue;
     vk::Queue const m_presentQueue;
 
-    vk::SurfaceFormatKHR const m_surfaceFormat{
+    std::vector<vk::SurfaceFormatKHR> const m_requestedSurfaceFormats{
             vulkanUtils::defaultSurfaceFormat};
-    std::vector<vk::PresentModeKHR> const m_presentationModes{
+    std::vector<vk::PresentModeKHR> const m_requestedPresentationModes{
             vk::PresentModeKHR::eFifoRelaxed,
             vk::PresentModeKHR::eFifo};
+
+    vulkanUtils::SwapChainDetails const m_staticSwapChainDetails;
 
     vk::UniqueSwapchainKHR const m_swapChain;
     std::vector<vk::Image> const m_swapChainImages;

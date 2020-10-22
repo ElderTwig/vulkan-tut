@@ -400,19 +400,14 @@ choose_presentation_mode(
 }
 
 [[nodiscard]] auto
-choose_swap_chain_details(
+choose_static_swap_chain_details(
         vk::PhysicalDevice const& device,
         vk::UniqueSurfaceKHR const& surface,
-        vk::Extent2D const requestedExtent,
         std::vector<vk::SurfaceFormatKHR> const& requestedFormats,
         std::vector<vk::PresentModeKHR> const& requestedPresentModes)
         -> SwapChainDetails
 {
-    auto const surfaceCaps   = device.getSurfaceCapabilitiesKHR(*surface);
-    auto const clampedExtent = clamp_extent_dimensions(
-            surfaceCaps.minImageExtent,
-            surfaceCaps.maxImageExtent,
-            requestedExtent);
+    auto const surfaceCaps = device.getSurfaceCapabilitiesKHR(*surface);
 
     auto const chosenFormat = choose_format(
             device.getSurfaceFormatsKHR(*surface),
@@ -422,19 +417,19 @@ choose_swap_chain_details(
             device.getSurfacePresentModesKHR(*surface),
             requestedPresentModes);
 
-    return {surfaceCaps, clampedExtent, chosenFormat, chosenPresentMode};
+    return {surfaceCaps, chosenFormat, chosenPresentMode};
 }
 
 [[nodiscard]] auto
 swap_chain_unique(
-        SwapChainDetails const&& creationDetails,
+        SwapChainDetails const& staticCreationDetails,
+        vk::Extent2D const currentDimensions,
         vk::UniqueSurfaceKHR const& surface,
         std::vector<uint32_t> const& queueFamilyIndicies,
         vk::UniqueDevice const& logicalDevice) -> vk::UniqueSwapchainKHR
 {
-    auto&& [surfaceCaps, dimensions, format, presentMode] = creationDetails;
-
-    auto const sharingMode = queueFamilyIndicies.size() > 1u
+    auto&& [surfaceCaps, format, presentMode] = staticCreationDetails;
+    auto const sharingMode                    = queueFamilyIndicies.size() > 1u
                                      ? vk::SharingMode::eConcurrent
                                      : vk::SharingMode::eExclusive;
 
@@ -444,7 +439,7 @@ swap_chain_unique(
             surfaceCaps.minImageCount,
             format.format,
             format.colorSpace,
-            dimensions,
+            currentDimensions,
             1,
             vk::ImageUsageFlagBits::eColorAttachment,
             sharingMode,
@@ -458,66 +453,19 @@ swap_chain_unique(
 
 [[nodiscard]] auto
 create_swap_chain(
-        vk::PhysicalDevice const& physicalDevice,
         vk::UniqueSurfaceKHR const& surface,
         vk::UniqueDevice const& logicalDevice,
-        vk::Extent2D const requestedDimensions,
-        vk::SurfaceFormatKHR const requestedFormat,
-        vk::PresentModeKHR const requestedPresentMode,
-        std::vector<uint32_t> const& queueFamilyIndicies)
-        -> vk::UniqueSwapchainKHR
-{
-    return swap_chain_unique(
-            choose_swap_chain_details(
-                    physicalDevice,
-                    surface,
-                    requestedDimensions,
-                    {requestedFormat},
-                    {requestedPresentMode}),
-            surface,
-            queueFamilyIndicies,
-            logicalDevice);
-}    // namespace vulkanUtils
-
-[[nodiscard]] auto
-create_swap_chain(
-        vk::PhysicalDevice const& physicalDevice,
-        vk::UniqueSurfaceKHR const& surface,
-        vk::UniqueDevice const& logicalDevice,
+        SwapChainDetails const& staticCreationDetails,
         vk::Extent2D requestedDimensions,
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR
 {
     return swap_chain_unique(
-            choose_swap_chain_details(
-                    physicalDevice,
-                    surface,
-                    requestedDimensions,
-                    {defaultSurfaceFormat},
-                    {defaultPresentationMode}),
-            surface,
-            queueFamilyIndicies,
-            logicalDevice);
-}
-
-[[nodiscard]] auto
-create_swap_chain(
-        vk::PhysicalDevice const& physicalDevice,
-        vk::UniqueSurfaceKHR const& surface,
-        vk::UniqueDevice const& logicalDevice,
-        vk::Extent2D requestedDimensions,
-        std::vector<vk::SurfaceFormatKHR> requestedFormats,
-        std::vector<vk::PresentModeKHR> requestedPresentModes,
-        std::vector<uint32_t> const& queueFamilyIndicies)
-        -> vk::UniqueSwapchainKHR
-{
-    return swap_chain_unique(
-            choose_swap_chain_details(
-                    physicalDevice,
-                    surface,
-                    requestedDimensions,
-                    requestedFormats,
-                    requestedPresentModes),
+            staticCreationDetails,
+            clamp_extent_dimensions(
+                    staticCreationDetails.surfaceCaps.minImageExtent,
+                    staticCreationDetails.surfaceCaps.maxImageExtent,
+                    requestedDimensions),
             surface,
             queueFamilyIndicies,
             logicalDevice);

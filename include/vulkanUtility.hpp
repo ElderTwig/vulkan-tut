@@ -15,7 +15,6 @@ auto constexpr vkTrue  = VK_TRUE;
 
 struct SwapChainDetails {
     vk::SurfaceCapabilitiesKHR surfaceCaps;
-    vk::Extent2D dimensions;
     vk::SurfaceFormatKHR format;
     vk::PresentModeKHR presentationMode;
 };
@@ -88,33 +87,19 @@ auto constexpr defaultSurfaceFormat = vk::SurfaceFormatKHR{
 auto constexpr defaultPresentationMode = vk::PresentModeKHR::eFifoRelaxed;
 
 [[nodiscard]] auto
-create_swap_chain(
-        vk::PhysicalDevice const& physicalDevice,
+choose_static_swap_chain_details(
+        vk::PhysicalDevice const& device,
         vk::UniqueSurfaceKHR const& surface,
-        vk::UniqueDevice const& logicalDevice,
-        vk::Extent2D requestedDimensions,
-        vk::SurfaceFormatKHR requestedFormat,
-        vk::PresentModeKHR requestedPresentMode,
-        std::vector<uint32_t> const& queueFamilyIndicies)
-        -> vk::UniqueSwapchainKHR;
+        std::vector<vk::SurfaceFormatKHR> const& requestedFormats,
+        std::vector<vk::PresentModeKHR> const& requestedPresentModes)
+        -> SwapChainDetails;
 
 [[nodiscard]] auto
 create_swap_chain(
-        vk::PhysicalDevice const& physicalDevice,
         vk::UniqueSurfaceKHR const& surface,
         vk::UniqueDevice const& logicalDevice,
+        SwapChainDetails const& staticCreationDetails,
         vk::Extent2D requestedDimensions,
-        std::vector<uint32_t> const& queueFamilyIndicies)
-        -> vk::UniqueSwapchainKHR;
-
-[[nodiscard]] auto
-create_swap_chain(
-        vk::PhysicalDevice const& physicalDevice,
-        vk::UniqueSurfaceKHR const& surface,
-        vk::UniqueDevice const& logicalDevice,
-        vk::Extent2D requestedDimensions,
-        std::vector<vk::SurfaceFormatKHR> requestedFormats,
-        std::vector<vk::PresentModeKHR> requestedPresentModes,
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR;
 

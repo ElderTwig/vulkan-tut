@@ -116,20 +116,24 @@ HelloTriangle::HelloTriangle() :
             m_presentQueue{m_logicalDevice->getQueue(
                     m_presentationQueues.position,
                     0)},
+            m_staticSwapChainDetails{
+                    vulkanUtils::choose_static_swap_chain_details(
+                            m_physicalDevice,
+                            m_surface,
+                            m_requestedSurfaceFormats,
+                            m_requestedPresentationModes)},
             m_swapChain{vulkanUtils::create_swap_chain(
-                    m_physicalDevice,
                     m_surface,
                     m_logicalDevice,
+                    m_staticSwapChainDetails,
                     {width, height},
-                    {m_surfaceFormat},
-                    m_presentationModes,
                     m_queueIndicies)},
             m_swapChainImages(
                     m_logicalDevice->getSwapchainImagesKHR(*m_swapChain)),
             m_imageViews{vulkanUtils::create_image_views(
                     m_logicalDevice,
                     m_swapChainImages,
-                    m_surfaceFormat.format)},
+                    m_staticSwapChainDetails.format.format)},
             m_vertShader{m_logicalDevice, "triangle"},
             m_fragShader{m_logicalDevice, "triangle"},
             m_pipelineCreationInfos{
@@ -165,7 +169,7 @@ HelloTriangle::HelloTriangle() :
                     vk::PipelineLayoutCreateInfo{})},
             m_renderpass{vulkanUtils::create_render_pass(
                     m_logicalDevice,
-                    m_surfaceFormat.format)},
+                    m_staticSwapChainDetails.format.format)},
             m_graphicsPipeline{
                     m_logicalDevice
                             ->createGraphicsPipelineUnique(
@@ -231,9 +235,10 @@ HelloTriangle::HelloTriangle() :
 // m_presentationModes,
 // m_queueIndicies);
 
-// auto const imageViews = vulkanUtils::create_image_views(m_logicalDevice,
+// auto const imageViews = vulkanUtils::create_image_views(
+// m_logicalDevice,
 // m_swapChainImages,
-// m_swapChainImages);
+//);
 //}
 
 auto
