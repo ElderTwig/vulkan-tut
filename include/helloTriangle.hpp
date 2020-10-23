@@ -87,9 +87,6 @@ private:
     MemoryFenceArray const m_memoryFences;
 
     auto
-    recreate_swap_chain(vk::Extent2D newDimensions) -> void;
-
-    auto
     main_loop() -> void;
 
     static auto

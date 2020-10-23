@@ -98,6 +98,7 @@ choose_static_swap_chain_details(
 [[nodiscard]] auto
 create_swap_chain(
         vk::UniqueSurfaceKHR const& surface,
+        vk::PhysicalDevice const& physicalDevice,
         vk::UniqueDevice const& logicalDevice,
         SwapChainDetails const& staticCreationDetails,
         vk::Extent2D requestedDimensions,

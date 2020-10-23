@@ -313,6 +313,10 @@ clamp_extent_dimensions(
         vk::Extent2D const maxExtent,
         vk::Extent2D const requestedExtent) -> vk::Extent2D
 {
+    std::cerr << "\n\n"
+              << requestedExtent.width << ' ' << requestedExtent.height
+              << "\n\n";
+
     auto const maxAndMinAreOrdered =
             std::tie(maxExtent.width, maxExtent.height)
             >= std::tie(minExtent.width, minExtent.height);
@@ -329,6 +333,8 @@ clamp_extent_dimensions(
             requestedExtent.height,
             minExtent.height,
             maxExtent.height);
+
+    std::cerr << "\n\n" << clampedWidth << ' ' << clampedHeight << "\n\n";
 
     return {clampedWidth, clampedHeight};
 }
@@ -455,17 +461,20 @@ swap_chain_unique(
 [[nodiscard]] auto
 create_swap_chain(
         vk::UniqueSurfaceKHR const& surface,
+        vk::PhysicalDevice const& physicalDevice,
         vk::UniqueDevice const& logicalDevice,
         SwapChainDetails const& staticCreationDetails,
         vk::Extent2D requestedDimensions,
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR
 {
+    auto const surfaceCaps = physicalDevice.getSurfaceCapabilitiesKHR(*surface);
+
     return swap_chain_unique(
             staticCreationDetails,
             clamp_extent_dimensions(
-                    staticCreationDetails.surfaceCaps.minImageExtent,
-                    staticCreationDetails.surfaceCaps.maxImageExtent,
+                    surfaceCaps.minImageExtent,
+                    surfaceCaps.maxImageExtent,
                     requestedDimensions),
             surface,
             queueFamilyIndicies,
