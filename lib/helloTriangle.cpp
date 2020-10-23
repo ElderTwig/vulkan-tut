@@ -122,55 +122,15 @@ HelloTriangle::HelloTriangle() :
                             m_surface,
                             m_requestedSurfaceFormats,
                             m_requestedPresentationModes)},
-            m_swapChain{vulkanUtils::create_swap_chain(
-                    m_surface,
-                    m_logicalDevice,
-                    m_staticSwapChainDetails,
-                    {width, height},
-                    m_queueIndicies)},
-            m_swapChainImages(
-                    m_logicalDevice->getSwapchainImagesKHR(*m_swapChain)),
-            m_imageViews{vulkanUtils::create_image_views(
-                    m_logicalDevice,
-                    m_swapChainImages,
-                    m_staticSwapChainDetails.format.format)},
             m_vertShader{m_logicalDevice, "triangle"},
             m_fragShader{m_logicalDevice, "triangle"},
             m_colourBlendAttatchment{vulkanUtils::defaultBlendAttachment},
             m_colourBlendState{vulkanUtils::defaultBlendState},
             m_pipelineLayout{m_logicalDevice->createPipelineLayoutUnique(
                     vk::PipelineLayoutCreateInfo{})},
-            m_renderPass{vulkanUtils::create_render_pass(
-                    m_logicalDevice,
-                    m_staticSwapChainDetails.format.format)},
-            m_graphicsPipeline{vulkanUtils::create_graphics_pipeline(
-                    m_logicalDevice,
-                    m_vertShader,
-                    m_fragShader,
-                    width,
-                    height,
-                    m_colourBlendState,
-                    nullptr,
-                    m_pipelineLayout,
-                    m_renderPass)},
-            m_framebuffers{vulkanUtils::create_framebuffers(
-                    m_logicalDevice,
-                    m_renderPass,
-                    m_imageViews,
-                    {width, height})},
             m_commandPool{vulkanUtils::create_command_pool(
                     m_logicalDevice,
                     m_graphicsQueues)},
-            m_commandBuffers{record_commands_to_command_buffers(
-                    m_renderPass,
-                    m_framebuffers,
-                    {width, height},
-                    m_graphicsPipeline,
-                    vulkanUtils::allocate_command_buffers(
-                            m_logicalDevice,
-                            m_commandPool,
-                            vk::CommandBufferLevel::ePrimary,
-                            m_framebuffers.size()))},
             m_imageAvailableSignals{
                     m_logicalDevice->createSemaphoreUnique({}),
                     m_logicalDevice->createSemaphoreUnique({})},
@@ -183,39 +143,63 @@ HelloTriangle::HelloTriangle() :
                     m_logicalDevice->createFenceUnique(
                             {vk::FenceCreateFlagBits::eSignaled})}
 {
+    recreate_swap_chain({width, height});
     std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
 }
 
-//[[nodiscard]] auto
-// HelloTriangle::recreate_swap_chain(vk::Extent2D const newDimensions)
-//{
-// auto const swapChain [[maybe_unused]] = vulkanUtils::create_swap_chain(
-// m_surface,
-// m_logicalDevice,
-// m_staticSwapChainDetails,
-// newDimensions,
-// m_queueIndicies);
+auto
+HelloTriangle::recreate_swap_chain(vk::Extent2D const newDimensions) -> void
+{
+    m_swapChain = vulkanUtils::create_swap_chain(
+            m_surface,
+            m_logicalDevice,
+            m_staticSwapChainDetails,
+            newDimensions,
+            m_queueIndicies);
 
-// auto const imageViews [[maybe_unused]] = vulkanUtils::create_image_views(
-// m_logicalDevice,
-// m_swapChainImages,
-// m_staticSwapChainDetails.format.format);
+    m_logicalDevice->getSwapchainImagesKHR(*m_swapChain)
+            .swap(m_swapChainImages);
 
-// auto const renderPass [[maybe_unused]] = vulkanUtils::create_render_pass(
-// m_logicalDevice,
-// m_staticSwapChainDetails.format.format);
+    vulkanUtils::create_image_views(
+            m_logicalDevice,
+            m_swapChainImages,
+            m_staticSwapChainDetails.format.format)
+            .swap(m_imageViews);
 
-// auto const graphicsPipeline [[maybe_unused]] =
-// vulkanUtils::create_graphics_pipeline(
-// m_logicalDevice,
-// m_vertShader,
-// m_fragShader,
-// newDimensions,
-// m_colourBlendState,
-// nullptr,
-// m_pipelineLayout,
-// m_renderPass);
-//}
+    m_renderPass = vulkanUtils::create_render_pass(
+            m_logicalDevice,
+            m_staticSwapChainDetails.format.format);
+
+    m_graphicsPipeline = vulkanUtils::create_graphics_pipeline(
+            m_logicalDevice,
+            m_vertShader,
+            m_fragShader,
+            newDimensions.width,
+            newDimensions.height,
+            m_colourBlendState,
+            nullptr,
+            m_pipelineLayout,
+            m_renderPass);
+
+    vulkanUtils::create_framebuffers(
+            m_logicalDevice,
+            m_renderPass,
+            m_imageViews,
+            newDimensions)
+            .swap(m_framebuffers);
+
+    record_commands_to_command_buffers(
+            m_renderPass,
+            m_framebuffers,
+            newDimensions,
+            m_graphicsPipeline,
+            vulkanUtils::allocate_command_buffers(
+                    m_logicalDevice,
+                    m_commandPool,
+                    vk::CommandBufferLevel::ePrimary,
+                    m_framebuffers.size()))
+            .swap(m_commandBuffers);
+}
 
 auto
 draw_frame(

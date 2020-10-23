@@ -63,9 +63,9 @@ private:
 
     vulkanUtils::SwapChainDetails const m_staticSwapChainDetails;
 
-    vk::UniqueSwapchainKHR const m_swapChain;
-    std::vector<vk::Image> const m_swapChainImages;
-    std::vector<vk::UniqueImageView> const m_imageViews;
+    vk::UniqueSwapchainKHR m_swapChain;
+    std::vector<vk::Image> m_swapChainImages;
+    std::vector<vk::UniqueImageView> m_imageViews;
 
     shaderUtils::VertexShader const m_vertShader;
     shaderUtils::FragmentShader const m_fragShader;
@@ -74,17 +74,20 @@ private:
     vk::PipelineColorBlendStateCreateInfo const m_colourBlendState;
 
     vk::UniquePipelineLayout const m_pipelineLayout;
-    vk::UniqueRenderPass const m_renderPass;
-    vk::UniquePipeline const m_graphicsPipeline;
+    vk::UniqueRenderPass m_renderPass;
+    vk::UniquePipeline m_graphicsPipeline;
 
-    std::vector<vk::UniqueFramebuffer> const m_framebuffers;
+    std::vector<vk::UniqueFramebuffer> m_framebuffers;
 
     vk::UniqueCommandPool const m_commandPool;
-    std::vector<vk::UniqueCommandBuffer> const m_commandBuffers;
+    std::vector<vk::UniqueCommandBuffer> m_commandBuffers;
 
     SemaphoreArray const m_imageAvailableSignals;
     SemaphoreArray const m_renderFinishedSignals;
     MemoryFenceArray const m_memoryFences;
+
+    auto
+    recreate_swap_chain(vk::Extent2D newDimensions) -> void;
 
     auto
     main_loop() -> void;
