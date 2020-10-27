@@ -53,7 +53,7 @@ get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos;
 get_present_queues(
         vk::PhysicalDevice const& device,
         QueueFamilyAndPos firstGraphicsQueueFamily,
-        vk::UniqueSurfaceKHR const& surface) -> QueueFamilyAndPos;
+        vk::SurfaceKHR const& surface) -> QueueFamilyAndPos;
 
 [[nodiscard]] auto
 create_logical_device(
@@ -65,7 +65,7 @@ create_logical_device(
 
 [[nodiscard]] auto
 best_device(
-        vk::UniqueInstance const& instance,
+        vk::Instance const& instance,
         std::vector<char const*> requiredExtensions) -> vk::PhysicalDevice;
 
 auto constexpr defaultSurfaceFormat = vk::SurfaceFormatKHR{
@@ -77,14 +77,14 @@ auto constexpr defaultPresentationMode = vk::PresentModeKHR::eFifoRelaxed;
 [[nodiscard]] auto
 choose_static_swap_chain_details(
         vk::PhysicalDevice const& device,
-        vk::UniqueSurfaceKHR const& surface,
+        vk::SurfaceKHR const& surface,
         std::vector<vk::SurfaceFormatKHR> const& requestedFormats,
         std::vector<vk::PresentModeKHR> const& requestedPresentModes)
         -> SwapChainDetails;
 
 [[nodiscard]] auto
 create_swap_chain(
-        vk::UniqueSurfaceKHR const& surface,
+        vk::SurfaceKHR const& surface,
         vk::PhysicalDevice const& physicalDevice,
         vk::UniqueDevice const& logicalDevice,
         SwapChainDetails const& staticCreationDetails,

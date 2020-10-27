@@ -10,23 +10,14 @@ class DynamicFuncDispatcher {
 public:
     explicit DynamicFuncDispatcher(vk::Instance const& instance);
 
-    [[nodiscard]] constexpr auto
-    boundInstance() const noexcept -> vk::Instance const&
-    {
-        return m_boundInstance.get();
-    }
+    [[nodiscard]] auto
+    boundInstance() const noexcept -> vk::Instance const&;
 
-    [[nodiscard]] constexpr auto
-    operator*() const noexcept -> vk::DispatchLoaderDynamic const&
-    {
-        return m_dispatcher;
-    }
+    [[nodiscard]] auto
+    operator*() const noexcept -> vk::DispatchLoaderDynamic const&;
 
-    [[nodiscard]] constexpr auto
-    operator->() const noexcept -> vk::DispatchLoaderDynamic const*
-    {
-        return &m_dispatcher;
-    }
+    [[nodiscard]] auto
+    operator->() const noexcept -> vk::DispatchLoaderDynamic const*;
 
 private:
     vk::DynamicLoader const m_loader;

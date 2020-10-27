@@ -108,7 +108,7 @@ create_debug_messenger(
 
 [[nodiscard]] auto
 best_device(
-        vk::UniqueInstance const& instance,
+        vk::Instance const& instance,
         std::vector<char const*> requiredExtensions) -> vk::PhysicalDevice
 {
     auto constexpr getExtensionName = [](vk::ExtensionProperties const& prop) {
@@ -144,7 +144,7 @@ best_device(
         return hasGeometryShaderSuport && requiredExtensionsSupported;
     };
 
-    auto devices = instance->enumeratePhysicalDevices();
+    auto devices = instance.enumeratePhysicalDevices();
     devices.erase(
             std::remove_if(std::begin(devices), std::end(devices), unsuitable),
             std::end(devices));
@@ -204,14 +204,12 @@ get_graphics_queues(vk::PhysicalDevice const& device) -> QueueFamilyAndPos
 get_present_queues(
         vk::PhysicalDevice const& device,
         QueueFamilyAndPos firstGraphicsQueueFamily,
-        vk::UniqueSurfaceKHR const& surface) -> QueueFamilyAndPos
+        vk::SurfaceKHR const& surface) -> QueueFamilyAndPos
 {
     auto presentationFamily = firstGraphicsQueueFamily;
 
     try {
-        while(device.getSurfaceSupportKHR(
-                      presentationFamily.position,
-                      surface.get())
+        while(device.getSurfaceSupportKHR(presentationFamily.position, surface)
               == 0u) {
             presentationFamily = get_next_graphics_queue_family(
                     device,
@@ -263,10 +261,6 @@ clamp_extent_dimensions(
         vk::Extent2D const maxExtent,
         vk::Extent2D const requestedExtent) -> vk::Extent2D
 {
-    std::cerr << "\n\n"
-              << requestedExtent.width << ' ' << requestedExtent.height
-              << "\n\n";
-
     auto const maxAndMinAreOrdered =
             std::tie(maxExtent.width, maxExtent.height)
             >= std::tie(minExtent.width, minExtent.height);
@@ -283,8 +277,6 @@ clamp_extent_dimensions(
             requestedExtent.height,
             minExtent.height,
             maxExtent.height);
-
-    std::cerr << "\n\n" << clampedWidth << ' ' << clampedHeight << "\n\n";
 
     return {clampedWidth, clampedHeight};
 }
@@ -359,19 +351,19 @@ choose_presentation_mode(
 [[nodiscard]] auto
 choose_static_swap_chain_details(
         vk::PhysicalDevice const& device,
-        vk::UniqueSurfaceKHR const& surface,
+        vk::SurfaceKHR const& surface,
         std::vector<vk::SurfaceFormatKHR> const& requestedFormats,
         std::vector<vk::PresentModeKHR> const& requestedPresentModes)
         -> SwapChainDetails
 {
-    auto const surfaceCaps = device.getSurfaceCapabilitiesKHR(*surface);
+    auto const surfaceCaps = device.getSurfaceCapabilitiesKHR(surface);
 
     auto const chosenFormat = choose_format(
-            device.getSurfaceFormatsKHR(*surface),
+            device.getSurfaceFormatsKHR(surface),
             requestedFormats);
 
     auto const chosenPresentMode = choose_presentation_mode(
-            device.getSurfacePresentModesKHR(*surface),
+            device.getSurfacePresentModesKHR(surface),
             requestedPresentModes);
 
     return {surfaceCaps, chosenFormat, chosenPresentMode};
@@ -381,7 +373,7 @@ choose_static_swap_chain_details(
 swap_chain_unique(
         SwapChainDetails const& staticCreationDetails,
         vk::Extent2D const currentDimensions,
-        vk::UniqueSurfaceKHR const& surface,
+        vk::SurfaceKHR const& surface,
         std::vector<uint32_t> const& queueFamilyIndicies,
         vk::UniqueDevice const& logicalDevice) -> vk::UniqueSwapchainKHR
 {
@@ -392,7 +384,7 @@ swap_chain_unique(
 
     return logicalDevice->createSwapchainKHRUnique(vk::SwapchainCreateInfoKHR(
             {},
-            *surface,
+            surface,
             surfaceCaps.minImageCount,
             format.format,
             format.colorSpace,
@@ -410,7 +402,7 @@ swap_chain_unique(
 
 [[nodiscard]] auto
 create_swap_chain(
-        vk::UniqueSurfaceKHR const& surface,
+        vk::SurfaceKHR const& surface,
         vk::PhysicalDevice const& physicalDevice,
         vk::UniqueDevice const& logicalDevice,
         SwapChainDetails const& staticCreationDetails,
@@ -418,7 +410,7 @@ create_swap_chain(
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR
 {
-    auto const surfaceCaps = physicalDevice.getSurfaceCapabilitiesKHR(*surface);
+    auto const surfaceCaps = physicalDevice.getSurfaceCapabilitiesKHR(surface);
 
     return swap_chain_unique(
             staticCreationDetails,

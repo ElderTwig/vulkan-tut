@@ -13,29 +13,17 @@ public:
             std::vector<char const*> validationLayers,
             std::vector<char const*> extensions);
 
-    [[nodiscard]] constexpr auto
-    operator*() const noexcept -> vk::Instance const&
-    {
-        return *m_instance;
-    }
+    [[nodiscard]] auto
+    operator*() const noexcept -> vk::Instance const&;
 
-    [[nodiscard]] constexpr auto
-    operator->() const noexcept -> vk::Instance const*
-    {
-        return &m_instance.get();
-    }
+    [[nodiscard]] auto
+    operator->() const noexcept -> vk::Instance const*;
 
-    [[nodiscard]] constexpr auto
-    extensions() const noexcept -> std::vector<char const*> const&
-    {
-        return m_extensions;
-    }
+    [[nodiscard]] auto
+    extensions() const noexcept -> std::vector<char const*> const&;
 
-    [[nodiscard]] constexpr auto
-    validationLayers() const noexcept -> std::vector<char const*> const&
-    {
-        return m_validationLayers;
-    }
+    [[nodiscard]] auto
+    validationLayers() const noexcept -> std::vector<char const*> const&;
 
 private:
     std::vector<char const*> const m_extensions;

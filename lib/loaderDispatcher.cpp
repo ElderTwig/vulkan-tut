@@ -11,4 +11,24 @@ DynamicFuncDispatcher::DynamicFuncDispatcher(vk::Instance const& instance) :
             m_boundInstance{instance}
 {}
 
+[[nodiscard]] auto
+DynamicFuncDispatcher::boundInstance() const noexcept -> vk::Instance const&
+{
+    return m_boundInstance.get();
+}
+
+[[nodiscard]] auto
+DynamicFuncDispatcher::operator*() const noexcept
+        -> vk::DispatchLoaderDynamic const&
+{
+    return m_dispatcher;
+}
+
+[[nodiscard]] auto
+DynamicFuncDispatcher::operator->() const noexcept
+        -> vk::DispatchLoaderDynamic const*
+{
+    return &m_dispatcher;
+}
+
 }    // namespace vulkanUtils

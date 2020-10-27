@@ -31,4 +31,28 @@ Instance::Instance(
             m_validationLayers{std::move(validationLayers)},
             m_instance{create_instance(m_validationLayers, m_extensions)}
 {}
+
+[[nodiscard]] auto
+Instance::operator*() const noexcept -> vk::Instance const&
+{
+    return *m_instance;
+}
+
+[[nodiscard]] auto
+Instance::operator->() const noexcept -> vk::Instance const*
+{
+    return &m_instance.get();
+}
+
+[[nodiscard]] auto
+Instance::extensions() const noexcept -> std::vector<char const*> const&
+{
+    return m_extensions;
+}
+
+[[nodiscard]] auto
+Instance::validationLayers() const noexcept -> std::vector<char const*> const&
+{
+    return m_validationLayers;
+}
 }    // namespace vulkanUtils

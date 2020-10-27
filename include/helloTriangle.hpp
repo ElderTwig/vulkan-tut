@@ -2,8 +2,12 @@
 #define VK_TUT_HELLO_TRIANGLE_HPP
 
 #include "glfwUtility.hpp"
+#include "surface.hpp"
 #include "vulkanUtility.hpp"
 #include "shaderUtility.hpp"
+#include "instance.hpp"
+#include "loaderDispatcher.hpp"
+#include "debugMessenger.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -36,11 +40,13 @@ private:
 
     std::vector<char const*> const m_validationLayers{
             "VK_LAYER_KHRONOS_validation"};
-    vk::UniqueInstance const m_instance;
+    std::vector<char const*> const m_extensions;
 
-    vulkanUtils::LoaderDispatcherPair const m_loaderDispatcherPair;
-    vulkanUtils::UniqueDebugUtilsMessengerEXT const m_debugMessenger;
-    vk::UniqueSurfaceKHR const m_surface;
+    vulkanUtils::Instance const m_instance;
+
+    vulkanUtils::DynamicFuncDispatcher const m_dynamicFuncDispatcher;
+    vulkanUtils::DebugMessenger const m_debugMessenger;
+    vulkanUtils::Surface const m_surface;
 
     std::vector<char const*> const m_deviceExtensions{
             VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -63,10 +69,6 @@ private:
 
     vulkanUtils::SwapChainDetails const m_staticSwapChainDetails;
 
-    vk::UniqueSwapchainKHR m_swapChain;
-    std::vector<vk::Image> m_swapChainImages;
-    std::vector<vk::UniqueImageView> m_imageViews;
-
     shaderUtils::VertexShader const m_vertShader;
     shaderUtils::FragmentShader const m_fragShader;
 
@@ -74,17 +76,21 @@ private:
     vk::PipelineColorBlendStateCreateInfo const m_colourBlendState;
 
     vk::UniquePipelineLayout const m_pipelineLayout;
-    vk::UniqueRenderPass m_renderPass;
-    vk::UniquePipeline m_graphicsPipeline;
-
-    std::vector<vk::UniqueFramebuffer> m_framebuffers;
-
     vk::UniqueCommandPool const m_commandPool;
-    std::vector<vk::UniqueCommandBuffer> m_commandBuffers;
 
     SemaphoreArray const m_imageAvailableSignals;
     SemaphoreArray const m_renderFinishedSignals;
     MemoryFenceArray const m_memoryFences;
+
+    vk::UniqueSwapchainKHR m_swapChain;
+    std::vector<vk::Image> m_swapChainImages;
+    std::vector<vk::UniqueImageView> m_imageViews;
+
+    vk::UniqueRenderPass m_renderPass;
+    vk::UniquePipeline m_graphicsPipeline;
+
+    std::vector<vk::UniqueFramebuffer> m_framebuffers;
+    std::vector<vk::UniqueCommandBuffer> m_commandBuffers;
 
     auto
     main_loop() -> void;
