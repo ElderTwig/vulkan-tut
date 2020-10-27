@@ -34,14 +34,40 @@ auto constexpr debugMessengerCreationInfo =
 
 namespace vulkanUtils {
 
-DebugMessenger::DebugMessenger(DynamicFuncDispatcher const& dispatcher) :
-            m_debugMessenger{dispatcher.boundInstance()
-                                     .createDebugUtilsMessengerEXTUnique(
-                                             debugMessengerCreationInfo,
-                                             nullptr,
-                                             *dispatcher)},
-            m_boundFuncDispatcher{*dispatcher},
-            m_boundInstance{dispatcher.boundInstance()}
+DebugMessenger::DebugMessenger(
+        vk::Instance const& instance,
+        vk::DispatchLoaderDynamic const& dispatcher) :
+            m_debugMessenger{instance.createDebugUtilsMessengerEXTUnique(
+                    debugMessengerCreationInfo,
+                    nullptr,
+                    dispatcher)},
+            m_boundFuncDispatcher{dispatcher},
+            m_boundInstance{instance}
 {}
+
+[[nodiscard]] auto
+DebugMessenger::boundInstance() const noexcept -> vk::Instance const&
+{
+    return m_boundInstance.get();
+}
+
+[[nodiscard]] auto
+DebugMessenger::boundDispatcher() const noexcept
+        -> vk::DispatchLoaderDynamic const&
+{
+    return m_boundFuncDispatcher.get();
+}
+
+[[nodiscard]] auto
+DebugMessenger::operator*() const noexcept -> vk::DebugUtilsMessengerEXT const&
+{
+    return *m_debugMessenger;
+}
+
+[[nodiscard]] auto
+DebugMessenger::operator->() const noexcept -> vk::DebugUtilsMessengerEXT const*
+{
+    return &m_debugMessenger.get();
+}
 
 }    // namespace vulkanUtils

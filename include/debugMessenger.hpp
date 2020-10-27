@@ -1,40 +1,29 @@
 #ifndef VK_TUT_DEBUG_MESSENGER_HPP
 #define VK_TUT_DEBUG_MESSENGER_HPP
 
-#include "loaderDispatcher.hpp"
-
 #include <vulkan/vulkan.hpp>
 
 #include <functional>
 
 namespace vulkanUtils {
+
 class DebugMessenger {
 public:
-    explicit DebugMessenger(DynamicFuncDispatcher const& dispatcher);
+    explicit DebugMessenger(
+            vk::Instance const& instance,
+            vk::DispatchLoaderDynamic const& dispatcher);
 
-    [[nodiscard]] constexpr auto
-    boundInstance() const noexcept -> vk::Instance const&
-    {
-        return m_boundInstance.get();
-    }
+    [[nodiscard]] auto
+    boundInstance() const noexcept -> vk::Instance const&;
 
-    [[nodiscard]] constexpr auto
-    boundDispatcher() const noexcept -> vk::DispatchLoaderDynamic const&
-    {
-        return m_boundFuncDispatcher.get();
-    }
+    [[nodiscard]] auto
+    boundDispatcher() const noexcept -> vk::DispatchLoaderDynamic const&;
 
-    [[nodiscard]] constexpr auto
-    operator*() const noexcept -> vk::DebugUtilsMessengerEXT const&
-    {
-        return *m_debugMessenger;
-    }
+    [[nodiscard]] auto
+    operator*() const noexcept -> vk::DebugUtilsMessengerEXT const&;
 
-    [[nodiscard]] constexpr auto
-    operator->() const noexcept -> vk::DebugUtilsMessengerEXT const*
-    {
-        return &m_debugMessenger.get();
-    }
+    [[nodiscard]] auto
+    operator->() const noexcept -> vk::DebugUtilsMessengerEXT const*;
 
 private:
     vk::UniqueHandle<
@@ -45,6 +34,7 @@ private:
             m_boundFuncDispatcher;
     std::reference_wrapper<vk::Instance const> const m_boundInstance;
 };
+
 }    // namespace vulkanUtils
 
 #endif    // VK_TUT_DEBUG_MESSENGER_HPP
