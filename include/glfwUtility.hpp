@@ -9,12 +9,12 @@
 #include <vector>
 
 namespace glfwUtils {
+
 struct WindowDeleter {
     auto
     operator()(GLFWwindow* window) noexcept -> void
     {
         glfwDestroyWindow(window);
-        glfwTerminate();
     }
 };
 

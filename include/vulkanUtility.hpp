@@ -20,11 +20,6 @@ struct SwapChainDetails {
     vk::PresentModeKHR presentationMode;
 };
 
-struct LoaderDispatcherPair {
-    vk::DynamicLoader loader;
-    vk::DispatchLoaderDynamic dispatcher;
-};
-
 struct QueueFamilyAndPos {
     vk::QueueFamilyProperties properties;
     long position;
@@ -41,14 +36,6 @@ extensions_supported(std::vector<char const*> const& extensionNames) noexcept
 
 [[nodiscard]] auto
 layers_supported(std::vector<char const*> const& layerNames) noexcept -> bool;
-
-[[nodiscard]] auto
-create_instance(std::vector<char const*> const& requiredValidationLayers)
-        -> vk::UniqueInstance;
-
-[[nodiscard]] auto
-create_loader_dispatcher_pair(vk::UniqueInstance const& instance)
-        -> LoaderDispatcherPair;
 
 using UniqueDebugUtilsMessengerEXT =
         vk::UniqueHandle<vk::DebugUtilsMessengerEXT, vk::DispatchLoaderDynamic>;

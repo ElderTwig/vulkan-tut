@@ -8,6 +8,27 @@
 #include <memory>
 #include <vector>
 
+namespace {
+struct InitAndTerminateGLFW {
+    InitAndTerminateGLFW()
+    {
+        glfwInit();
+    }
+
+    InitAndTerminateGLFW(InitAndTerminateGLFW&&)      = delete;
+    InitAndTerminateGLFW(InitAndTerminateGLFW const&) = delete;
+    auto
+    operator=(InitAndTerminateGLFW&&) = delete;
+    auto
+    operator=(InitAndTerminateGLFW const&) = delete;
+
+    ~InitAndTerminateGLFW()
+    {
+        glfwTerminate();
+    }
+} const terminateGLFW{};
+}    // namespace
+
 namespace glfwUtils {
 
 auto
@@ -17,7 +38,6 @@ create_window(
         bool resizeable,
         std::string const& title) -> UniqueWindow
 {
-    glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, (int)resizeable);
 

@@ -64,56 +64,6 @@ layers_supported(std::vector<char const*> const& layerNames) noexcept -> bool
     return allSupported;
 }
 
-[[nodiscard]] auto
-create_instance(std::vector<char const*> const& requiredValidationLayers)
-        -> vk::UniqueInstance
-{
-    auto const requiredExtensions = [] {
-        auto extensions = glfwUtils::required_vk_extensions();
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-        return extensions;
-    }();
-
-    if(!extensions_supported(requiredExtensions)) {
-        throw std::runtime_error("Required extensions not supported!");
-    }
-
-    if(!layers_supported(requiredValidationLayers)) {
-        throw std::runtime_error("Required layers not supported!");
-    }
-
-    auto constexpr appInfo = vk::ApplicationInfo(
-            "HelloTriangle",
-            1,
-            "vkTut",
-            1,
-            VK_API_VERSION_1_2);
-
-    auto const instanceCreateInfo = vk::InstanceCreateInfo(
-            {},
-            &appInfo,
-            requiredValidationLayers.size(),
-            requiredValidationLayers.data(),
-            requiredExtensions.size(),
-            requiredExtensions.data());
-
-    return vk::createInstanceUnique(instanceCreateInfo);
-}
-
-[[nodiscard]] auto
-create_loader_dispatcher_pair(vk::UniqueInstance const& instance)
-        -> LoaderDispatcherPair
-{
-    auto loader = vk::DynamicLoader{};
-    auto const getInstanceProcAddress =
-            loader.getProcAddress<PFN_vkGetInstanceProcAddr>(
-                    "vkGetInstanceProcAddr");
-    auto dispatcher = vk::DispatchLoaderDynamic{getInstanceProcAddress};
-    dispatcher.init(*instance);
-
-    return {std::move(loader), std::move(dispatcher)};
-}
-
 VKAPI_ATTR VkBool32 VKAPI_CALL
 debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
