@@ -3,10 +3,18 @@
 
 #include <vulkan/vulkan.hpp>
 
+#include <functional>
+
 namespace vulkanUtils {
 class DynamicFuncDispatcher {
 public:
     explicit DynamicFuncDispatcher(vk::Instance const& instance);
+
+    [[nodiscard]] constexpr auto
+    boundInstance() const noexcept -> vk::Instance const&
+    {
+        return m_boundInstance.get();
+    }
 
     [[nodiscard]] constexpr auto
     operator*() const noexcept -> vk::DispatchLoaderDynamic const&
@@ -23,6 +31,8 @@ public:
 private:
     vk::DynamicLoader const m_loader;
     vk::DispatchLoaderDynamic const m_dispatcher;
+
+    std::reference_wrapper<vk::Instance const> const m_boundInstance;
 };
 }    // namespace vulkanUtils
 
