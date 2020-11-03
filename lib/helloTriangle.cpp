@@ -170,19 +170,18 @@ HelloTriangle::HelloTriangle() :
             m_dynamicFuncDispatcher{*m_instance},
             m_debugMessenger{*m_instance, *m_dynamicFuncDispatcher},
             m_surface{*m_instance, m_window.get()},
-            m_physicalDevice{
-                    vulkanUtils::best_device(*m_instance, m_deviceExtensions)},
+            m_physicalDevice{*m_instance, m_deviceExtensions},
             m_graphicsQueues{
-                    vulkanUtils::get_graphics_queues(m_physicalDevice)},
+                    vulkanUtils::get_graphics_queues(*m_physicalDevice)},
             m_presentationQueues{vulkanUtils::get_present_queues(
-                    m_physicalDevice,
+                    *m_physicalDevice,
                     m_graphicsQueues,
                     *m_surface)},
             m_queuePriorities(m_graphicsQueues.properties.queueCount, 1.0f),
             m_queueIndicies{
                     create_index_list(m_graphicsQueues, m_presentationQueues)},
             m_logicalDevice{vulkanUtils::create_logical_device(
-                    m_physicalDevice,
+                    *m_physicalDevice,
                     m_graphicsQueues,
                     m_queuePriorities,
                     m_validationLayers,
@@ -194,7 +193,7 @@ HelloTriangle::HelloTriangle() :
                     0)},
             m_staticSwapChainDetails{
                     vulkanUtils::choose_static_swap_chain_details(
-                            m_physicalDevice,
+                            *m_physicalDevice,
                             *m_surface,
                             m_requestedSurfaceFormats,
                             m_requestedPresentationModes)},
@@ -221,7 +220,7 @@ HelloTriangle::HelloTriangle() :
 {
     recreate_swap_chain(
             {width, height},
-            m_physicalDevice,
+            *m_physicalDevice,
             m_logicalDevice,
             *m_surface,
             m_staticSwapChainDetails,
@@ -238,7 +237,7 @@ HelloTriangle::HelloTriangle() :
             m_graphicsPipeline,
             m_framebuffers,
             m_commandBuffers);
-    std::cerr << m_physicalDevice.getProperties().deviceName.data() << '\n';
+    std::cerr << m_physicalDevice->getProperties().deviceName.data() << '\n';
 }
 
 [[nodiscard]] auto
@@ -401,7 +400,7 @@ HelloTriangle::main_loop() -> void
     while(glfwWindowShouldClose(m_window.get()) == 0) {
         glfwPollEvents();
         draw_frames(
-                m_physicalDevice,
+                *m_physicalDevice,
                 m_logicalDevice,
                 *m_surface,
                 m_staticSwapChainDetails,

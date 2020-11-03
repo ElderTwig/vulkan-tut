@@ -8,6 +8,7 @@
 #include "instance.hpp"
 #include "loaderDispatcher.hpp"
 #include "debugMessenger.hpp"
+#include "physicalDevice.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -50,7 +51,7 @@ private:
 
     std::vector<char const*> const m_deviceExtensions{
             VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-    vk::PhysicalDevice const m_physicalDevice;
+    vulkanUtils::PhysicalDevice const m_physicalDevice;
 
     vulkanUtils::QueueFamilyAndPos const m_graphicsQueues;
     vulkanUtils::QueueFamilyAndPos const m_presentationQueues;
