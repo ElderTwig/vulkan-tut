@@ -63,11 +63,6 @@ create_logical_device(
         std::vector<char const*> const& validationLayers,
         std::vector<char const*> const& extensions) -> vk::UniqueDevice;
 
-[[nodiscard]] auto
-best_device(
-        vk::Instance const& instance,
-        std::vector<char const*> requiredExtensions) -> vk::PhysicalDevice;
-
 auto constexpr defaultSurfaceFormat = vk::SurfaceFormatKHR{
         vk::Format::eB8G8R8A8Srgb,
         vk::ColorSpaceKHR::eSrgbNonlinear};
