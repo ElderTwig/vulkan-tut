@@ -5,6 +5,30 @@
 #include <algorithm>
 #include <functional>
 #include <cstring>
+#include <tuple>
+
+[[nodiscard]] auto
+get_next_graphics_queue_family(
+        vk::PhysicalDevice const& device,
+        long startIndex) -> vulkanUtils::QueueFamily
+{
+    auto constexpr isGraphicsQueue = [](vk::QueueFamilyProperties const& prop) {
+        return (prop.queueFlags & vk::QueueFlagBits::eGraphics)
+               == vk::QueueFlagBits::eGraphics;
+    };
+
+    auto const queueProperties = device.getQueueFamilyProperties();
+    auto const queueIterator   = std::find_if(
+            std::cbegin(queueProperties) + startIndex,
+            std::cend(queueProperties),
+            isGraphicsQueue);
+
+    if(queueIterator == std::cend(queueProperties)) {
+        throw std::runtime_error{"Physical device has no next graphics queue!"};
+    }
+
+    return {*queueIterator, queueIterator - std::cbegin(queueProperties)};
+}
 
 [[nodiscard]] auto
 supports_extensions(
@@ -79,6 +103,39 @@ PhysicalDevice::operator*() const noexcept -> vk::PhysicalDevice const&
 PhysicalDevice::operator->() const noexcept -> vk::PhysicalDevice const*
 {
     return &m_physicalDevice;
+}
+
+[[nodiscard]] auto
+PhysicalDevice::graphics_queue_family() const -> QueueFamily
+{
+    return get_next_graphics_queue_family(m_physicalDevice, 0);
+}
+
+[[nodiscard]] auto
+PhysicalDevice::present_queue_family(
+        QueueFamily firstGraphicsQueueFamily,
+        vk::SurfaceKHR const& surface) const -> QueueFamily
+{
+    auto presentationFamily = firstGraphicsQueueFamily;
+
+    try {
+        while(m_physicalDevice.getSurfaceSupportKHR(
+                      presentationFamily.position,
+                      surface)
+              == 0u) {
+            presentationFamily = get_next_graphics_queue_family(
+                    m_physicalDevice,
+                    presentationFamily.position + 1);
+        }
+    }
+    catch(std::exception const& e) {
+        using namespace std::string_literals;
+        throw std::runtime_error(
+                "Could not find a presentationQueueFamily because:\n"s
+                + e.what());
+    }
+
+    return presentationFamily;
 }
 
 }    // namespace vulkanUtils

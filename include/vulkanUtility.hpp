@@ -14,12 +14,6 @@ namespace vulkanUtils {
 auto constexpr vkFalse = VK_FALSE;
 auto constexpr vkTrue  = VK_TRUE;
 
-struct SwapChainDetails {
-    vk::SurfaceCapabilitiesKHR surfaceCaps;
-    vk::SurfaceFormatKHR format;
-    vk::PresentModeKHR presentationMode;
-};
-
 struct QueueFamilyAndPos {
     vk::QueueFamilyProperties properties;
     long position;
@@ -70,19 +64,12 @@ auto constexpr defaultSurfaceFormat = vk::SurfaceFormatKHR{
 auto constexpr defaultPresentationMode = vk::PresentModeKHR::eFifoRelaxed;
 
 [[nodiscard]] auto
-choose_static_swap_chain_details(
-        vk::PhysicalDevice const& device,
-        vk::SurfaceKHR const& surface,
-        std::vector<vk::SurfaceFormatKHR> const& requestedFormats,
-        std::vector<vk::PresentModeKHR> const& requestedPresentModes)
-        -> SwapChainDetails;
-
-[[nodiscard]] auto
 create_swap_chain(
         vk::SurfaceKHR const& surface,
-        vk::PhysicalDevice const& physicalDevice,
+        vk::SurfaceCapabilitiesKHR const& surfaceCaps,
+        vk::SurfaceFormatKHR const& surfaceFormat,
+        vk::PresentModeKHR const& presentationMode,
         vk::UniqueDevice const& logicalDevice,
-        SwapChainDetails const& staticCreationDetails,
         vk::Extent2D requestedDimensions,
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR;

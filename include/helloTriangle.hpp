@@ -47,14 +47,19 @@ private:
 
     vulkanUtils::DynamicFuncDispatcher const m_dynamicFuncDispatcher;
     vulkanUtils::DebugMessenger const m_debugMessenger;
-    vulkanUtils::Surface const m_surface;
 
     std::vector<char const*> const m_deviceExtensions{
             VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     vulkanUtils::PhysicalDevice const m_physicalDevice;
 
-    vulkanUtils::QueueFamilyAndPos const m_graphicsQueues;
-    vulkanUtils::QueueFamilyAndPos const m_presentationQueues;
+    vulkanUtils::Surface const m_surface;
+    vk::SurfaceCapabilitiesKHR const m_surfaceCaps;
+
+    std::vector<vk::SurfaceFormatKHR> const m_surfaceFormats;
+    vk::SurfaceFormatKHR const m_chosenSurfaceFormat;
+
+    vulkanUtils::QueueFamily const m_graphicsQueues;
+    vulkanUtils::QueueFamily const m_presentationQueues;
     std::vector<float> const m_queuePriorities;
     std::vector<uint32_t> const m_queueIndicies;
 
@@ -67,8 +72,6 @@ private:
     std::vector<vk::PresentModeKHR> const m_requestedPresentationModes{
             vk::PresentModeKHR::eFifoRelaxed,
             vk::PresentModeKHR::eFifo};
-
-    vulkanUtils::SwapChainDetails const m_staticSwapChainDetails;
 
     shaderUtils::VertexShader const m_vertShader;
     shaderUtils::FragmentShader const m_fragShader;

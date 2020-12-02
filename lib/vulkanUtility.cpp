@@ -217,103 +217,16 @@ clamp_extent_dimensions(
 }
 
 [[nodiscard]] auto
-choose_format(
-        std::vector<vk::SurfaceFormatKHR> const availableFormats,
-        std::vector<vk::SurfaceFormatKHR> const& requestedSurfaceFormats)
-        -> vk::SurfaceFormatKHR
-{
-    auto const requestedFormatSupported =
-            [&](vk::SurfaceFormatKHR const& requestedSurfaceFormat) {
-                return std::find(
-                               std::cbegin(availableFormats),
-                               std::cend(availableFormats),
-                               requestedSurfaceFormat)
-                       != std::cend(availableFormats);
-            };
-
-    for(auto const& requested : requestedSurfaceFormats) {
-        if(requestedFormatSupported(requested)) {
-            return requested;
-        }
-    }
-
-    std::cerr << "Requested surface formats not supported\n";
-
-    auto const defaultFormatNotSupported =
-            !requestedFormatSupported(defaultSurfaceFormat);
-    if(defaultFormatNotSupported) {
-        throw std::runtime_error(
-                "Default SurfaceFormatKHR not supported!\n"
-                "Please request a supported format.");
-    }
-
-    return defaultSurfaceFormat;
-}
-[[nodiscard]] auto
-choose_presentation_mode(
-        std::vector<vk::PresentModeKHR> const supportedModes,
-        std::vector<vk::PresentModeKHR> const& requestedPresentModes)
-        -> vk::PresentModeKHR
-{
-    auto const requestedModeSupported =
-            [&](vk::PresentModeKHR const& requestedPresentMode) {
-                return std::find(
-                               std::cbegin(supportedModes),
-                               std::cend(supportedModes),
-                               requestedPresentMode)
-                       != std::cend(supportedModes);
-            };
-
-    for(auto const& requested : requestedPresentModes) {
-        if(requestedModeSupported(requested)) {
-            return requested;
-        }
-    }
-
-    std::cerr << "Requested presentation modes are not supported!\n";
-
-    auto const defaultModeNotSupported =
-            !requestedModeSupported(defaultPresentationMode);
-    if(defaultModeNotSupported) {
-        throw std::runtime_error(
-                "Default PresentModeKHR is not supported!\n"
-                "Please request a supported PresentModeKHR");
-    }
-
-    return defaultPresentationMode;
-}
-
-[[nodiscard]] auto
-choose_static_swap_chain_details(
-        vk::PhysicalDevice const& device,
-        vk::SurfaceKHR const& surface,
-        std::vector<vk::SurfaceFormatKHR> const& requestedFormats,
-        std::vector<vk::PresentModeKHR> const& requestedPresentModes)
-        -> SwapChainDetails
-{
-    auto const surfaceCaps = device.getSurfaceCapabilitiesKHR(surface);
-
-    auto const chosenFormat = choose_format(
-            device.getSurfaceFormatsKHR(surface),
-            requestedFormats);
-
-    auto const chosenPresentMode = choose_presentation_mode(
-            device.getSurfacePresentModesKHR(surface),
-            requestedPresentModes);
-
-    return {surfaceCaps, chosenFormat, chosenPresentMode};
-}
-
-[[nodiscard]] auto
 swap_chain_unique(
-        SwapChainDetails const& staticCreationDetails,
-        vk::Extent2D const currentDimensions,
         vk::SurfaceKHR const& surface,
+        vk::SurfaceCapabilitiesKHR const& surfaceCaps,
+        vk::SurfaceFormatKHR const& surfaceFormat,
+        vk::PresentModeKHR const& presentationMode,
+        vk::Extent2D const currentDimensions,
         std::vector<uint32_t> const& queueFamilyIndicies,
         vk::UniqueDevice const& logicalDevice) -> vk::UniqueSwapchainKHR
 {
-    auto&& [surfaceCaps, format, presentMode] = staticCreationDetails;
-    auto const sharingMode                    = queueFamilyIndicies.size() > 1u
+    auto const sharingMode = queueFamilyIndicies.size() > 1u
                                      ? vk::SharingMode::eConcurrent
                                      : vk::SharingMode::eExclusive;
 
@@ -321,8 +234,8 @@ swap_chain_unique(
             {},
             surface,
             surfaceCaps.minImageCount,
-            format.format,
-            format.colorSpace,
+            surfaceFormat.format,
+            surfaceFormat.colorSpace,
             currentDimensions,
             1,
             vk::ImageUsageFlagBits::eColorAttachment,
@@ -331,29 +244,30 @@ swap_chain_unique(
             queueFamilyIndicies.data(),
             surfaceCaps.currentTransform,
             vk::CompositeAlphaFlagBitsKHR::eOpaque,
-            presentMode,
+            presentationMode,
             VK_TRUE));
 }
 
 [[nodiscard]] auto
 create_swap_chain(
         vk::SurfaceKHR const& surface,
-        vk::PhysicalDevice const& physicalDevice,
+        vk::SurfaceCapabilitiesKHR const& surfaceCaps,
+        vk::SurfaceFormatKHR const& surfaceFormat,
+        vk::PresentModeKHR const& presentationMode,
         vk::UniqueDevice const& logicalDevice,
-        SwapChainDetails const& staticCreationDetails,
         vk::Extent2D requestedDimensions,
         std::vector<uint32_t> const& queueFamilyIndicies)
         -> vk::UniqueSwapchainKHR
 {
-    auto const surfaceCaps = physicalDevice.getSurfaceCapabilitiesKHR(surface);
-
     return swap_chain_unique(
-            staticCreationDetails,
+            surface,
+            surfaceCaps,
+            surfaceFormat,
+            presentationMode,
             clamp_extent_dimensions(
                     surfaceCaps.minImageExtent,
                     surfaceCaps.maxImageExtent,
                     requestedDimensions),
-            surface,
             queueFamilyIndicies,
             logicalDevice);
 }

@@ -8,6 +8,11 @@
 
 namespace vulkanUtils {
 
+struct QueueFamily {
+    vk::QueueFamilyProperties properties;
+    long position;
+};
+
 class PhysicalDevice {
 public:
     explicit PhysicalDevice(
@@ -25,6 +30,14 @@ public:
 
     [[nodiscard]] auto
     operator->() const noexcept -> vk::PhysicalDevice const*;
+
+    [[nodiscard]] auto
+    graphics_queue_family() const -> QueueFamily;
+
+    [[nodiscard]] auto
+    present_queue_family(
+            QueueFamily firstGraphicsQueueFamily,
+            vk::SurfaceKHR const& surface) const -> QueueFamily;
 
 private:
     vk::PhysicalDevice const m_physicalDevice;
